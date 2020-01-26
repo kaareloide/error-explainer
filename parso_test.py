@@ -42,7 +42,6 @@ def find_nodes_of_type(root_node, node_type):
 
 
 def check_missing_parens(error_node):
-    #todo doesn't seem to work with opening parens
     parens = 0
     error_code = error_node.get_code()
     error_code = error_code.strip()
@@ -83,6 +82,7 @@ def get_simple_error_messages(root_node):
         # All error checks go here
         missing_parens_res = check_missing_parens(error)
         line_num = get_line_location(error)
+
         if missing_parens_res < 0:
             # missing opening paren
             messages.append((error, f"{abs(missing_parens_res)} missing opening parenthesis on line {line_num}."))
@@ -124,13 +124,13 @@ def get_defined_names(root_node):
 
 
 if __name__ == "__main__":
-    sample_path = "samples/defs.py"
+    sample_path = "samples/missing_paren_1.py"
     filename = os.path.abspath(sample_path)
     grammar = parso.load_grammar()
     module = grammar.parse(read_file(filename))
     errors = grammar.iter_errors(module)
     # print(is_syntax_error(errors[0]))
-    print(get_defined_names(module.get_root_node()))
+    #print(get_defined_names(module.get_root_node()))
     if len(errors) > 0:
         # Errors found
         found_error = find_nodes_of_type(module.get_root_node(), parso.python.tree.PythonErrorNode)[0]
