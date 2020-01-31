@@ -1,10 +1,11 @@
 import keyword
 import os
-from simple_message_creator import get_simple_error_messages
+from simple_message_creator import SimpleMessageCreator
 from search_utils import *
 
 
 def find_errors_and_get_simple_messages(path):
+    simple_message_creator = SimpleMessageCreator()
     filename = os.path.abspath(path)
     grammar = parso.load_grammar()
     module = grammar.parse(read_file(filename))
@@ -14,11 +15,16 @@ def find_errors_and_get_simple_messages(path):
         found_errors = find_nodes_of_type(module.get_root_node(), parso.python.tree.PythonErrorNode)
         print(f"Found errors: {found_errors}")
         # print(found_errors[0].get_code())
-        simple_message = get_simple_error_messages(module.get_root_node(), filename)
+        simple_message = simple_message_creator.get_simple_error_messages(module.get_root_node(), filename)
         print(f"Simple message: {simple_message}")
         return simple_message
     else:
         return None
+
+
+def read_lines(path):
+    with open(path, "r") as input_file:
+        return input_file.readlines()
 
 
 def read_file(path):
