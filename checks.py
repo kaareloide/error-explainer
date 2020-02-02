@@ -73,12 +73,24 @@ def check_invalid_function_def(error_node):
     return error_code == "def"
 
 
+def check_missing_function_def_parts(line):
+    line = line.strip()
+    parts = line.split(" ")
+    print(parts)
+    if len(parts) < 2:
+        # todo figure out check for invalid name and args part
+        return line
+    else:
+        return None
+
+
 def check_invalid_function_name(line):
     line = line.strip()
     parts = line.split(" ")
     print(parts)
     if len(parts) > 1:
         should_be_variable_name = parts[1]
+        should_be_variable_name = should_be_variable_name.split("(")[0]
         print(should_be_variable_name)
         if utils.is_correct_variable_name(should_be_variable_name):
             return None
