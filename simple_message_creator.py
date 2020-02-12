@@ -18,22 +18,26 @@ class SimpleMessageCreator(object):
         self.messages.append((error, self.message_provider.get_formatted_message(code, **namespace)))
 
     def run_check_invalid_function_def(self, error, path, line_num):
+        # for some reason parso returns wrong line number in this case
+        line_num += 1
+
         self.invalid_function_def_res = check_invalid_function_def(error)
         if self.invalid_function_def_res:
-            error_line = utils.get_lines(path, [get_line_location(error)])[0]
-            print(line_num)
-            missing_function_parts_res = check_missing_function_def_parts(error_line)
-            if missing_function_parts_res is not None:
-                self.add_message(error, "missing_function_parts",
-                                 line=line_num, invalid_def=missing_function_parts_res)
+            error_line = utils.get_lines(path, [line_num-1])[0]
+            print(error_line)
+            tokens = utils.tokenize_line(error_line)
+            invalid_function_name_res = check_invalid_function_name(tokens)
+            if invalid_function_name_res == "=":
+                self.add_message(error, "invalid_function_name.assign_to_def", line=line_num)
+            elif invalid_function_name_res is not None:
+                self.add_message(error, "invalid_function_name",
+                                 line=line_num, invalid_name=invalid_function_name_res)
             else:
-                invalid_function_name_res = check_invalid_function_name(error_line)
-                if invalid_function_name_res is not None:
-                    if invalid_function_name_res == "=":
-                        self.add_message(error, "invalid_function_name.assign_to_def", line=line_num)
-                    else:
-                        self.add_message(error, "invalid_function_name",
-                                         line=line_num, invalid_name=invalid_function_name_res)
+                missing_function_parts_res = check_missing_function_def_parts(error_line)
+                if missing_function_parts_res is not None:
+                    self.add_message(error, "missing_function_parts",
+                                     line=line_num, invalid_def=missing_function_parts_res)
+
 
     def run_missing_brackets_checks(self, error, path, line_num):
         self.missing_brackets_res = check_missing_brackets(error)

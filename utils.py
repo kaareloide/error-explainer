@@ -1,5 +1,8 @@
 import keyword
 import os
+from io import StringIO
+import tokenize
+
 from simple_message_creator import SimpleMessageCreator
 from search_utils import *
 
@@ -44,3 +47,13 @@ def is_correct_variable_name(string):
 def get_lines(path, lines):
     with open(path, "r") as file:
         return [x for i, x in enumerate(file) if i in lines]
+
+
+def tokenize_line(line):
+    tokens = []
+    try:
+        for token in tokenize.generate_tokens(StringIO(line).readline):
+            tokens.append(token)
+    except tokenize.TokenError:
+        pass
+    return tokens

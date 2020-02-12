@@ -1,9 +1,10 @@
 """
 Different checks for finding possible errors.
 """
+import tokenize
+
 from colon_statements import *
 import utils
-
 
 def count_brackets(string):
     brackets_normal = 0
@@ -70,32 +71,30 @@ def check_missing_colon(error_node):
 def check_invalid_function_def(error_node):
     error_code = error_node.get_code()
     error_code = error_code.strip()
-    return error_code == "def"
+    return "def" in error_code
 
 
 def check_missing_function_def_parts(line):
+    tokens = utils.tokenize_line(line)
+    print(tokens)
     line = line.strip()
-    parts = line.split(" ")
-    print(parts)
-    if len(parts) < 2:
-        # todo figure out check for invalid name and args part
+    if len(tokens) < 5:
         return line
     else:
-        return None
+        if not utils.is_correct_variable_name(tokens[1].string) or tokens[2].string != "(" or tokens[-2].string != ")":
+            return line
+    return None
 
 
-def check_invalid_function_name(line):
-    line = line.strip()
-    parts = line.split(" ")
-    print(parts)
-    if len(parts) > 1:
-        should_be_variable_name = parts[1]
-        should_be_variable_name = should_be_variable_name.split("(")[0]
-        print(should_be_variable_name)
-        if utils.is_correct_variable_name(should_be_variable_name):
+def check_invalid_function_name(tokens):
+    if len(tokens) > 1 and tokens[1].string == "=":
+        return "="
+    if len(tokens) >= 6:
+        should_be_variable_name = tokens[1]
+        if should_be_variable_name.type != tokenize.NAME:
             return None
         else:
-            return should_be_variable_name
+            return should_be_variable_name.string
 
 
 def check_miss_matched_bracket_type(path):
