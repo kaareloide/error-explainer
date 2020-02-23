@@ -1,21 +1,18 @@
-import parso
 from checks import *
 from search_utils import *
 import utils
-from message_provider import MessageProvider
+from messages import get_formatted_message
 
 
 class SimpleMessageCreator(object):
 
     def __init__(self):
-        self.message_provider = MessageProvider()
-        self.message_provider.parse_messages()
         self.messages = []
         self.missing_brackets_res = None
         self.invalid_function_def_res = None
 
     def add_message(self, error, code, **namespace):
-        self.messages.append((error, self.message_provider.get_formatted_message(code, **namespace)))
+        self.messages.append((error, get_formatted_message(code, **namespace)))
 
     def run_check_invalid_function_def(self, error, path, line_num):
         # for some reason parso returns wrong line number in this case
@@ -37,7 +34,6 @@ class SimpleMessageCreator(object):
                 if missing_function_parts_res is not None:
                     self.add_message(error, "missing_function_parts",
                                      line=line_num, invalid_def=missing_function_parts_res)
-
 
     def run_missing_brackets_checks(self, error, path, line_num):
         self.missing_brackets_res = check_missing_brackets(error)
