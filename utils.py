@@ -12,8 +12,7 @@ from search_utils import *
 
 def find_errors_and_get_simple_messages(path: str) -> List[Tuple[Any, AnyStr]]:
     """
-    TODO refactor
-    Returns simple messages found by SimpleMessageCreator.
+    Returns simple messages found by SimpleMessageCreator. used mainly for testing
     :param path: path to file
     :return: list of tuples containing error and new message
     """

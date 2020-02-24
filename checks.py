@@ -2,13 +2,30 @@
 Different checks for finding possible errors.
 """
 import tokenize
-
+from typing import Tuple, List, Union
 from colon_statements import *
+from tokenize import TokenInfo
 import utils
 import enum
+import parso
 
 
-def count_brackets(string):
+class IndentationErrorType(enum.Enum):
+    """
+    Enum for types of indentation errors.
+    """
+    HIGHER_LEVEL_WITHOUT_START = 1
+    DOES_NOT_MATCH_OUTER = 2
+    NEW_INDENT_AT_EOF = 3
+    NO_NEW_INDENT = 4
+
+
+def count_brackets(string: str) -> Tuple[int, int, int]:
+    """
+    Count the number of miss matched brackets
+    :param string: String to count from
+    :return: Tuple[normal: int, square: int, curly: int]
+    """
     brackets_normal = 0
     brackets_square = 0
     brackets_curly = 0
@@ -27,13 +44,14 @@ def count_brackets(string):
             brackets_curly += 1
         elif current == "}":
             brackets_curly -= 1
-    return [brackets_normal, brackets_square, brackets_curly]
+    return brackets_normal, brackets_square, brackets_curly
 
 
-def check_missing_brackets(error_node):
+def check_missing_brackets(error_node: parso.python.tree.PythonErrorNode) -> Tuple[int, int, int]:
     """
-    :param error_node: parso error node
-    :return: array in the shape of [brackets_normal, brackets_square, brackets_curly] where each
+    Check if there are any missing brackets in the code of the given PythonErrorNode.
+    :param error_node: parso.python.tree.PythonErrorNode
+    :return: List in the shape of [brackets_normal, brackets_square, brackets_curly] where each
     value is 0 if there are no missing brackets of that type and positive or negative depending on if there were more
     opening or closing brackets.
     """
@@ -42,10 +60,10 @@ def check_missing_brackets(error_node):
     return count_brackets(error_code)
 
 
-def check_print_missing_brackets(error_node):
+def check_print_missing_brackets(error_node: parso.python.tree.PythonErrorNode) -> bool:
     """
-    :param error_node: parso error node
-    :return: True if print is not followed by parenthesis
+    :param error_node: parso.python.tree.PythonErrorNode
+    :return: True/False
     """
     error_code = error_node.get_code()
     error_code = error_code.strip()
@@ -54,11 +72,11 @@ def check_print_missing_brackets(error_node):
     return False
 
 
-def check_missing_colon(error_node):
+def check_missing_colon(error_node: parso.python.tree.PythonErrorNode) -> Union[None, str]:
     """
     Uses colon_statements to determine if there is a missing
-     colon after a statement that should be followed by one.
-    :param error_node: parso error node
+    colon after a statement that should be followed by one.
+    :param error_node: parso.python.tree.PythonErrorNode
     :return: the statement missing a colon or None if no colon error found
     """
     error_code = error_node.get_code()
@@ -70,13 +88,23 @@ def check_missing_colon(error_node):
     return None
 
 
-def check_invalid_function_def(error_node):
+def check_invalid_function_def(error_node: parso.python.tree.PythonErrorNode) -> bool:
+    """
+    Check if the error node is only the string "def"
+    :param error_node: parso.python.tree.PythonErrorNode
+    :return: True/False
+    """
     error_code = error_node.get_code()
     error_code = error_code.strip()
     return "def" in error_code
 
 
-def check_missing_function_def_parts(line):
+def check_missing_function_def_parts(line: str) -> Union[None, str]:
+    """
+    Check if the line is a proper function definition.
+    :param line: line to check
+    :return: None if proper definition, given line if error found.
+    """
     tokens = utils.tokenize_line(line)
     print(tokens)
     line = line.strip()
@@ -88,7 +116,12 @@ def check_missing_function_def_parts(line):
     return None
 
 
-def check_invalid_function_name(tokens):
+def check_invalid_function_name(tokens: List[TokenInfo]) -> Union[None, str]:
+    """
+    Check if there is a correct function name used in the function definition.
+    :param tokens: tokens to check
+    :return: None if no error found otherwise a string representing what type of error was found todo: enum
+    """
     if len(tokens) > 1 and tokens[1].string == "=":
         return "="
     if len(tokens) >= 6:
@@ -99,7 +132,12 @@ def check_invalid_function_name(tokens):
             return should_be_variable_name.string
 
 
-def check_miss_matched_bracket_type(path):
+def check_miss_matched_bracket_type(path: str) -> int:
+    """
+    Check for miss matched brackets
+    :param path: path to file
+    :return: 1, 2, or 3 based on the type of brackets todo: enum
+    """
     file_as_string = utils.read_file(path)
     brackets_count = count_brackets(file_as_string)
     normal_brackets_are_equal = brackets_count[0] % 2 == 0
@@ -115,7 +153,12 @@ def check_miss_matched_bracket_type(path):
     return 0
 
 
-def check_invalid_indentation(path):
+def check_invalid_indentation(path: str) -> Tuple[int, str, str, IndentationErrorType]:
+    """
+    Check if the file contains any indentation errors.
+    :param path: Path to file
+    :return: Tuple[line number: int, error line str, previous start of indentation block line str, IndentationErrorType]
+    """
     level_stack = [0]
     statement_lines = [None]
 
@@ -169,11 +212,3 @@ def check_invalid_indentation(path):
         else:
             # Higher level of indentation without start of new block
             return i + 1, line, statement_lines[0], IndentationErrorType.HIGHER_LEVEL_WITHOUT_START
-
-
-class IndentationErrorType(enum.Enum):
-    HIGHER_LEVEL_WITHOUT_START = 1
-    DOES_NOT_MATCH_OUTER = 2
-    NEW_INDENT_AT_EOF = 3
-    NO_NEW_INDENT = 4
-
