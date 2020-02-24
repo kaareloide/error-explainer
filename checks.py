@@ -7,6 +7,7 @@ from colon_statements import *
 import utils
 import enum
 
+
 def count_brackets(string):
     brackets_normal = 0
     brackets_square = 0
