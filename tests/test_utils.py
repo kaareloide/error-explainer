@@ -8,7 +8,8 @@ def run_test_scenario(test_case, path, expected_messages_count, expected_message
     test_case.assertEqual(len(messages), expected_messages_count)
 
     # Simple_message must be the one expected
-    only_messages = [message[1] for message in messages]
-    print(only_messages)
-    print(expected_message)
-    test_case.assertTrue(expected_message in only_messages)
+    if expected_message is not None:
+        only_messages = [message[1] for message in messages]
+        print(only_messages)
+        print(expected_message)
+        test_case.assertTrue(expected_message in only_messages)

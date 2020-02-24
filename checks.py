@@ -5,6 +5,7 @@ import tokenize
 
 from colon_statements import *
 import utils
+import enum
 
 def count_brackets(string):
     brackets_normal = 0
@@ -111,3 +112,67 @@ def check_miss_matched_bracket_type(path):
     elif not curly_brackets_are_equal and not square_brackets_are_equal:
         return 3
     return 0
+
+
+def check_invalid_indentation(path):
+    level_stack = [0]
+    statement_lines = [None]
+
+    def is_correct_indent_level(line_to_check):
+        if utils.is_only_comment_line(line_to_check):
+            return True
+        return utils.count_leading_spaces(line_to_check) == level_stack[0]
+
+    def is_lower_indentation(line_to_check):
+        return utils.count_leading_spaces(line_to_check) < level_stack[0]
+
+    def get_next_non_comment_line(all_lines, from_line):
+        for l in all_lines[from_line:]:
+            if not utils.is_only_comment_line(l):
+                return l
+        return None
+
+    lines = utils.read_lines(path)
+
+    if utils.is_colon_statement_line(lines[len(lines) - 1]):
+        # Last Line starts new indentation block
+        return len(lines), lines[len(lines) - 1], lines[len(lines) - 1], IndentationErrorType.NEW_INDENT_AT_EOF
+    for i, line in enumerate(lines):
+        space_count = utils.count_leading_spaces(line)
+        if is_correct_indent_level(line):
+            # If indentation matches stack
+            if utils.is_colon_statement_line(line):
+                # New indentation level started.
+                statement_lines.insert(0, line)
+                try:
+                    next_non_comment_line = get_next_non_comment_line(lines, i + 1)
+                    next_indentation_level = utils.count_leading_spaces(next_non_comment_line)
+                    if next_indentation_level <= level_stack[0]:
+                        # If no new indent after start of block statement and is not comment line
+                        return i + 1, next_non_comment_line, statement_lines[0], IndentationErrorType.NO_NEW_INDENT
+                    level_stack.insert(0, next_indentation_level)
+                except IndexError:
+                    # New indentation started at the last line
+                    return i + 1, line, statement_lines[0], IndentationErrorType.NEW_INDENT_AT_EOF
+
+        elif is_lower_indentation(line):
+            # If indentation level is lower check stack
+            if space_count in level_stack:
+                # If stack has that level, remove from start until that level
+                index = level_stack.index(space_count) + 1
+                del level_stack[0:index]
+                del statement_lines[0:index]
+            else:
+                # If that level was not in stack, then line does not match any outer indentation level
+                return i + 1, line, statement_lines[0], IndentationErrorType.DOES_NOT_MATCH_OUTER
+        else:
+            # Higher level of indentation without start of new block
+            return i + 1, line, statement_lines[0], IndentationErrorType.HIGHER_LEVEL_WITHOUT_START
+
+
+class IndentationErrorType(enum.Enum):
+    HIGHER_LEVEL_WITHOUT_START = 1
+    DOES_NOT_MATCH_OUTER = 2
+    NEW_INDENT_AT_EOF = 3
+    NO_NEW_INDENT = 4
+

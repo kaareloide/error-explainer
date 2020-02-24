@@ -11,5 +11,7 @@ colon_statements = {
         "for": parso.python.tree.ForStmt,
         "def": parso.python.tree.Function,
         "class": parso.python.tree.Class,
-        "with": parso.python.tree.WithStmt
+        "with": parso.python.tree.WithStmt,
+        "else": parso.python.tree.IfStmt,
+        "elif": parso.python.tree.IfStmt,
 }

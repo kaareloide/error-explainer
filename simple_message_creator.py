@@ -72,12 +72,15 @@ class SimpleMessageCreator(object):
 
     def get_simple_error_messages(self, root_node, path):
         """
-        searches for all error nodes and then runs error checks on the found nodes
+        searches for possible syntax errors
         :param root_node: root node of the partial AST given by parso
         :param path path to the python file
         :return: list of tuples in the form of (error node, simple message) of all the found errors
         """
+
         found_errors = find_nodes_of_type(root_node, parso.python.tree.PythonErrorNode)
+        if len(found_errors) == 0:
+            self.run_indent_check(path)
         for error in found_errors:
             line_num = get_line_location(error)
             missing_colon_result = None
@@ -87,6 +90,8 @@ class SimpleMessageCreator(object):
 
             if sum(self.missing_brackets_res) == 0 and self.is_not_def_error():
                 missing_colon_result = check_missing_colon(error)
+                if missing_colon_result is None:
+                    self.run_indent_check(path)
 
             if check_print_missing_brackets(error):
                 self.add_message(error, "missing_brackets.print", line=line_num)
@@ -97,3 +102,15 @@ class SimpleMessageCreator(object):
 
     def is_not_def_error(self):
         return self.invalid_function_def_res is None or not self.invalid_function_def_res
+
+    def run_indent_check(self, path):
+        indent_check_result = check_invalid_indentation(path)
+        print(f"INDENT {indent_check_result}")
+        if indent_check_result is not None:
+            indent_error_line_num = indent_check_result[0]
+            error_line = indent_check_result[1]
+            last_start_of_block = indent_check_result[2]
+            indent_error_type = indent_check_result[3]
+            self.add_message(indent_error_type, f"invalid_indentation.{indent_error_type.value}",
+                             line=indent_error_line_num, last_start_of_block=last_start_of_block,
+                             error_line=error_line)
