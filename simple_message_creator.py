@@ -14,32 +14,40 @@ class SimpleMessageCreator(object):
         self.missing_brackets_res = None
         self.invalid_function_def_res = None
 
-    def get_simple_error_messages(self, root_node, path):
+    def get_simple_error_messages(self, root_node: parso.python.tree.Module, path: str) -> List[Tuple[Any, str]]:
         """
         Main function that checks for possible syntax errors.
         :param root_node: root node of the partial AST given by Parso
         :param path Path to file
-        :return: List of all found errors in the form of tuples (error node, simple message)
+        :return: List of all found errors in the form of tuples (error, simple message)
         """
 
         found_errors = find_nodes_of_type(root_node, parso.python.tree.PythonErrorNode)
-        if len(found_errors) == 0:
-            self.run_indent_check(path)
-        for error in found_errors:
-            line_num = get_line_location(error)
-            missing_colon_result = None
-            self.run_check_invalid_function_def(error, path)
-            self.run_missing_brackets_checks(error, path)
+        print(f"invalid assignment res: {check_invalid_assignment_expr(root_node)}")
+        invalid_assignment_res = check_invalid_assignment_expr(root_node)
+        if len(invalid_assignment_res) > 0:
+            for res in invalid_assignment_res:
+                print(res.get_code())
+                self.add_message(res, "invalid_assignment",
+                                 statement=res.get_code().strip(), line=get_line_location_end(res))
+        else:
+            if len(found_errors) == 0:
+                self.run_indent_check(path)
+            for error in found_errors:
+                line_num = get_line_location_end(error)
+                missing_colon_result = None
+                self.run_check_invalid_function_def(error, path)
+                self.run_missing_brackets_checks(error, path)
 
-            if sum(self.missing_brackets_res) == 0 and self.is_not_def_error():
-                missing_colon_result = check_missing_colon(error)
-                if missing_colon_result is None:
-                    self.run_indent_check(path)
+                if sum(self.missing_brackets_res) == 0 and self.is_not_def_error():
+                    missing_colon_result = check_missing_colon(error)
+                    if missing_colon_result is None:
+                        self.run_indent_check(path)
 
-            if check_print_missing_brackets(error):
-                self.add_message(error, "missing_brackets.print", line=line_num)
-            elif missing_colon_result is not None:
-                self.add_message(error, "missing_colon", line=line_num, statement=missing_colon_result)
+                if check_print_missing_brackets(error):
+                    self.add_message(error, "missing_brackets.print", line=line_num)
+                elif missing_colon_result is not None:
+                    self.add_message(error, "missing_colon", line=line_num, statement=missing_colon_result)
 
         return self.messages
 
@@ -56,8 +64,8 @@ class SimpleMessageCreator(object):
         :param error: Parso PythonErrorNode
         :param path: Path to file
         """
-        # for some reason parso returns wrong line number in this case
-        line_num = utils.get_line_location(error) + 1
+
+        line_num = utils.get_line_location_end(error)
 
         self.invalid_function_def_res = check_invalid_function_def(error)
         if self.invalid_function_def_res:
@@ -82,7 +90,7 @@ class SimpleMessageCreator(object):
         :param error: Parso PythonErrorNode
         :param path: Path to file
         """
-        line_num = get_line_location(error)
+        line_num = get_line_location_start(error)
         self.missing_brackets_res = check_missing_brackets(error)
         missing_normal_brackets_res = self.missing_brackets_res[0]
         missing_square_brackets_res = self.missing_brackets_res[1]

@@ -17,8 +17,9 @@ messages = {
     "invalid_indentation.2": 'There is an error in the indentation on line number {line} ("{error_line}"). The indentation of the line does not match any outer level of indentation.',
     "invalid_indentation.3": 'There is an error in the indentation on line number {line} ("{error_line}"). The line starts a new indentation block at the end of the file.',
     "invalid_indentation.4": 'There is an error in the indentation on line number {line} ("{error_line}"). No new indentation started after a statement, that should start a new block ("{last_start_of_block}").',
+    "invalid_assignment": 'Invalid assignment "{statement}" on line {line}. Assignments should be in the format of variable_name = expression.',
 }
 
 
-def get_formatted_message(message_code, **namespace):
+def get_formatted_message(message_code: str, **namespace) -> str:
     return messages.get(message_code).format(**namespace)

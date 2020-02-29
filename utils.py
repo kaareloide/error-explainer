@@ -20,7 +20,7 @@ def find_errors_and_get_simple_messages(path: str) -> List[Tuple[Any, AnyStr]]:
     filename = os.path.abspath(path)
     grammar = parso.load_grammar()
     module = grammar.parse(read_file(filename))
-
+    print(module.get_root_node().children)
     found_errors = find_nodes_of_type(module.get_root_node(), parso.python.tree.PythonErrorNode)
     print(f"Found errors: {found_errors}")
     # print(found_errors[0].get_code())
@@ -51,7 +51,7 @@ def read_file(path: str) -> AnyStr:
 
 def is_correct_variable_name(string: str) -> bool:
     """
-    Check if string is a valid variable name.
+    Check if string is a valid variable name and is not a reserved keyword.
     :param string: string to check
     :return: True/False
     """
@@ -137,3 +137,24 @@ def is_only_comment_line(line: str) -> bool:
     if line[count_leading_spaces(line)] == "#":
         return True
     return False
+
+
+def is_correct_assignment_signature(tokens: List[tokenize.TokenInfo]) -> bool:
+    """
+    Check if list of tokens matches the pattern of a correct assignment. First token should be of type NAME
+    and second token should be of type OP and the string should be "=".
+    :param tokens: list of tokens to check
+    :return: True/False
+    """
+    return len(tokens) > 2 and tokens[0].type == tokenize.NAME \
+        and tokens[1].type == tokenize.OP \
+        and tokens[1].string == "="
+
+
+def is_correct_variable_name_token(token: tokenize.TokenInfo) -> bool:
+    """
+    Check if token is a correct variable name. Should be of type NAME and not be a reserved keyword.
+    :param token: Token to check
+    :return: True/False
+    """
+    return token.type == tokenize.NAME and is_correct_variable_name(token.string)

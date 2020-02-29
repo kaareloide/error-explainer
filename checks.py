@@ -212,3 +212,26 @@ def check_invalid_indentation(path: str) -> Tuple[int, str, str, IndentationErro
         else:
             # Higher level of indentation without start of new block
             return i + 1, line, statement_lines[0], IndentationErrorType.HIGHER_LEVEL_WITHOUT_START
+
+
+def check_invalid_assignment_expr(root_node: parso.python.tree.PythonBaseNode) \
+        -> List[parso.python.tree.ExprStmt]:
+    """
+
+    :param root_node:
+    :return:
+    """
+    expr_nodes = utils.find_nodes_of_type(root_node, parso.python.tree.ExprStmt)
+    bad_exprs = []
+    for expr in expr_nodes:
+        code = expr.get_code().strip()
+        print(code)
+        print(utils.tokenize_line(code))
+        tokens = utils.tokenize_line(code)
+        if utils.is_correct_assignment_signature(tokens) \
+                and utils.is_correct_variable_name_token(tokens[0]):
+            pass
+        else:
+            bad_exprs.append(expr)
+
+    return bad_exprs
