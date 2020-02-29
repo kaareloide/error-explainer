@@ -18,6 +18,7 @@ messages = {
     "invalid_indentation.3": 'There is an error in the indentation on line number {line} ("{error_line}"). The line starts a new indentation block at the end of the file.',
     "invalid_indentation.4": 'There is an error in the indentation on line number {line} ("{error_line}"). No new indentation started after a statement, that should start a new block ("{last_start_of_block}").',
     "invalid_assignment": 'Invalid assignment "{statement}" on line {line}. Assignments should be in the format of variable_name = expression.',
+    "invalid_quotes": 'There is a missing {quote} that should match the one on line {line} at position {pos}.'
 }
 
 

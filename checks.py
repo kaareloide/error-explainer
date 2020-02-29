@@ -214,8 +214,7 @@ def check_invalid_indentation(path: str) -> Tuple[int, str, str, IndentationErro
             return i + 1, line, statement_lines[0], IndentationErrorType.HIGHER_LEVEL_WITHOUT_START
 
 
-def check_invalid_assignment_expr(root_node: parso.python.tree.PythonBaseNode) \
-        -> List[parso.python.tree.ExprStmt]:
+def check_invalid_assignment_expr(root_node: parso.python.tree.Module) -> List[parso.python.tree.ExprStmt]:
     """
 
     :param root_node:
@@ -235,3 +234,12 @@ def check_invalid_assignment_expr(root_node: parso.python.tree.PythonBaseNode) \
             bad_exprs.append(expr)
 
     return bad_exprs
+
+
+def check_quote_error(root_node: parso.python.tree.Module):
+    leaf_error_nodes = utils.find_nodes_of_type(root_node, parso.python.tree.PythonErrorLeaf)
+    leaf_error_nodes = [leaf for leaf in leaf_error_nodes if leaf.get_code() == "'" or leaf.get_code() == "\""]
+    if len(leaf_error_nodes) > 0:
+        return leaf_error_nodes
+    else:
+        return None

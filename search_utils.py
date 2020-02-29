@@ -65,7 +65,7 @@ def get_defined_names(root_node: parso.python.tree.Module) -> List[str]:
 
 def get_line_location_end(error_node: parso.python.tree.Module) -> int:
     """
-    :param error_node: node with an error
+    :param error_node: node
     :return: line number of the end of the error
     """
     return error_node.end_pos[0]
@@ -73,7 +73,15 @@ def get_line_location_end(error_node: parso.python.tree.Module) -> int:
 
 def get_line_location_start(error_node: parso.python.tree.Module) -> int:
     """
-    :param error_node: node with an error
+    :param error_node: node
     :return: line number of the start of the error error
     """
     return error_node.get_start_pos_of_prefix()[0]
+
+
+def get_location_on_line(error_node: parso.python.tree.Module) -> int:
+    """
+    :param error_node: node
+    :return: what position is the error at on the line
+    """
+    return error_node.get_start_pos_of_prefix()[1]

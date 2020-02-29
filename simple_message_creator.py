@@ -23,11 +23,15 @@ class SimpleMessageCreator(object):
         """
 
         found_errors = find_nodes_of_type(root_node, parso.python.tree.PythonErrorNode)
-        print(f"invalid assignment res: {check_invalid_assignment_expr(root_node)}")
         invalid_assignment_res = check_invalid_assignment_expr(root_node)
-        if len(invalid_assignment_res) > 0:
+        print(f"invalid_assignment_res{invalid_assignment_res}")
+        quote_check_res = check_quote_error(root_node)
+        if quote_check_res is not None:
+            for res in quote_check_res:
+                self.add_message(res, "invalid_quotes",
+                                 quote=res.get_code(), line=get_line_location_start(res), pos=get_location_on_line(res))
+        elif len(invalid_assignment_res) > 0:
             for res in invalid_assignment_res:
-                print(res.get_code())
                 self.add_message(res, "invalid_assignment",
                                  statement=res.get_code().strip(), line=get_line_location_end(res))
         else:
