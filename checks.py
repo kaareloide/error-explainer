@@ -126,7 +126,7 @@ def check_invalid_function_name(tokens: List[TokenInfo]) -> Union[None, str]:
         return "="
     if len(tokens) >= 6:
         should_be_variable_name = tokens[1]
-        if should_be_variable_name.type != tokenize.NAME:
+        if should_be_variable_name.type == tokenize.NAME:
             return None
         else:
             return should_be_variable_name.string
@@ -164,6 +164,8 @@ def check_invalid_indentation(path: str) -> Tuple[int, str, str, IndentationErro
 
     def is_correct_indent_level(line_to_check):
         if utils.is_only_comment_line(line_to_check):
+            return True
+        if len(line_to_check.strip()) == 0:
             return True
         return utils.count_leading_spaces(line_to_check) == level_stack[0]
 
@@ -204,8 +206,8 @@ def check_invalid_indentation(path: str) -> Tuple[int, str, str, IndentationErro
             if space_count in level_stack:
                 # If stack has that level, remove from start until that level
                 index = level_stack.index(space_count) + 1
-                del level_stack[0:index]
-                del statement_lines[0:index]
+                del level_stack[0:index - 1]
+                del statement_lines[0:index - 1]
             else:
                 # If that level was not in stack, then line does not match any outer indentation level
                 return i + 1, line, statement_lines[0], IndentationErrorType.DOES_NOT_MATCH_OUTER

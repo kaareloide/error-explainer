@@ -23,7 +23,8 @@ class SimpleMessageCreator(object):
         """
 
         found_errors = find_nodes_of_type(root_node, parso.python.tree.PythonErrorNode)
-        invalid_assignment_res = check_invalid_assignment_expr(root_node)
+        # invalid_assignment_res = check_invalid_assignment_expr(root_node)
+        invalid_assignment_res = []
         print(f"invalid_assignment_res{invalid_assignment_res}")
         quote_check_res = check_quote_error(root_node)
         if quote_check_res is not None:
@@ -131,9 +132,12 @@ class SimpleMessageCreator(object):
 
     def run_indent_check(self, path: str) -> NoReturn:
         """
+        # TODO needs a lot of work
         Run a check to see if the given file contains any indentation errors
         and add simple message according to the response of the check.
         :param path: Path to file.
+        """
+        pass
         """
         indent_check_result = check_invalid_indentation(path)
         print(f"INDENT {indent_check_result}")
@@ -145,6 +149,7 @@ class SimpleMessageCreator(object):
             self.add_message(indent_error_type, f"invalid_indentation.{indent_error_type.value}",
                              line=indent_error_line_num, last_start_of_block=last_start_of_block,
                              error_line=error_line)
+        """
 
     #######
     #

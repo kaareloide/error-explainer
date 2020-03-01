@@ -5,7 +5,7 @@ from utils import find_errors_and_get_simple_messages
 
 
 def run_test_scenario(test_case: TestCase, path: str, expected_messages_count: int,
-                      expected_messages: Union[List[str], str]) -> NoReturn:
+                      expected_messages: Union[List[str], str, None]) -> NoReturn:
     """
     Default test scenario for checking errors in a python file.
     :param test_case: self of TestCase
