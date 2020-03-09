@@ -3,11 +3,14 @@ import os
 from io import StringIO
 import tokenize
 from tokenize import TokenInfo
+
+import parso
+
 from colon_statements import colon_statements
 from typing import List, Tuple, AnyStr, Any
 
+from search_utils import find_nodes_of_type
 from simple_message_creator import SimpleMessageCreator
-from search_utils import *
 
 
 def find_errors_and_get_simple_messages(path: str) -> List[Tuple[Any, AnyStr]]:
@@ -158,3 +161,14 @@ def is_correct_variable_name_token(token: tokenize.TokenInfo) -> bool:
     :return: True/False
     """
     return token.type == tokenize.NAME and is_correct_variable_name(token.string)
+
+
+def get_root_node(filename: str) -> parso.python.tree.Module:
+    grammar = parso.load_grammar()
+    module = grammar.parse(read_file(filename))
+    return module.get_root_node()
+
+
+def find_error_nodes(filename):
+    root_node = get_root_node(filename)
+    return find_nodes_of_type(root_node, parso.python.tree.PythonErrorNode)

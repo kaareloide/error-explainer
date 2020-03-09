@@ -14,6 +14,7 @@ class SimpleMessageCreator(object):
         self.missing_brackets_res = None
         self.invalid_function_def_res = None
 
+
     def get_simple_error_messages(self, root_node: parso.python.tree.Module, path: str) -> List[Tuple[Any, str]]:
         """
         Main function that checks for possible syntax errors.
