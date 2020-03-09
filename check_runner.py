@@ -1,3 +1,4 @@
+import ast
 from typing import NoReturn, Any
 
 import parso
@@ -6,7 +7,7 @@ from checks import check_quote_error, check_invalid_function_def, check_invalid_
     check_missing_function_def_parts, check_missing_brackets, check_miss_matched_bracket_type
 from messages import get_formatted_message
 from search_utils import get_line_location_start, get_location_on_line, get_line_location_end
-from utils import get_root_node, find_error_nodes, get_lines, tokenize_line
+from utils import get_root_node, find_error_nodes, get_lines, tokenize_line, read_file
 
 checks = []
 messages = []
@@ -22,8 +23,11 @@ def add_check(func):
 
 
 def run_checks(filename):
-    for c in checks:
-        c(filename)
+    try:
+        ast.parse(read_file(filename))
+    except Exception:
+        for c in checks:
+            c(filename)
     return messages
 
 
