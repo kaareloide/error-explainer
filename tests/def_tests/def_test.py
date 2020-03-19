@@ -1,5 +1,5 @@
 import unittest
-from ..test_utils import run_test_scenario
+from temp.test_utils import run_test_scenario
 from messages import get_formatted_message
 
 
