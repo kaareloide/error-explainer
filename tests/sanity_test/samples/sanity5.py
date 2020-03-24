@@ -1,3 +1,5 @@
+print("foo"
+
 def greet(name):
     print('Hello', name)
 

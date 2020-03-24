@@ -1,5 +1,4 @@
 import keyword
-import os
 from io import StringIO
 import tokenize
 from tokenize import TokenInfo
@@ -7,29 +6,9 @@ from tokenize import TokenInfo
 import parso
 
 from colon_statements import colon_statements
-from typing import List, Tuple, AnyStr, Any
+from typing import List, Tuple, AnyStr, Any, Optional
 
 from search_utils import find_nodes_of_type
-from simple_message_creator import SimpleMessageCreator
-
-
-def find_errors_and_get_simple_messages(path: str) -> List[Tuple[Any, AnyStr]]:
-    """
-    Returns simple messages found by SimpleMessageCreator. used mainly for testing
-    :param path: path to file
-    :return: list of tuples containing error and new message
-    """
-    simple_message_creator = SimpleMessageCreator()
-    filename = os.path.abspath(path)
-    grammar = parso.load_grammar()
-    module = grammar.parse(read_file(filename))
-    print(module.get_root_node().children)
-    found_errors = find_nodes_of_type(module.get_root_node(), parso.python.tree.PythonErrorNode)
-    print(f"Found errors: {found_errors}")
-    # print(found_errors[0].get_code())
-    simple_message = simple_message_creator.get_simple_error_messages(module.get_root_node(), filename)
-    print(f"Simple message: {simple_message}")
-    return simple_message
 
 
 def read_lines(path: str) -> List[AnyStr]:
@@ -97,22 +76,6 @@ def tokenize_line(line: str) -> List[TokenInfo]:
     return tokens
 
 
-def find_colon_lines(path: str) -> List[Tuple[int, str]]:
-    """
-    Find all lines containing a statement that should end with a colon.
-    :param path: path to file
-    :return: List[Tuple[int, str]] where int is line number and str is line
-    """
-    lines = read_lines(path)
-    line_number = 0
-    found_lines = []
-    for line in lines:
-        if is_colon_statement_line(line):
-            found_lines.append((line_number, line))
-        line_number += 1
-    return found_lines
-
-
 def is_colon_statement_line(line: str) -> bool:
     """
     Check if the line contains a statement that should end with a colon.
@@ -142,16 +105,47 @@ def is_only_comment_line(line: str) -> bool:
     return False
 
 
-def is_correct_assignment_signature(tokens: List[tokenize.TokenInfo]) -> bool:
+def is_correct_assignment_signature(code: str) -> bool:
     """
     Check if list of tokens matches the pattern of a correct assignment. First token should be of type NAME
     and second token should be of type OP and the string should be "=".
-    :param tokens: list of tokens to check
+    :param code: line containing variable assignment
     :return: True/False
     """
-    return len(tokens) > 2 and tokens[0].type == tokenize.NAME \
-        and tokens[1].type == tokenize.OP \
-        and tokens[1].string == "="
+    try:
+        equals_index = code.index("=")
+        if code[equals_index + 1] != "=":
+            # next symbol should not be another equals sign after the first one
+            should_be_var_names = code.split("=")[0]
+            should_be_var_names = remove_irrelevant_tokens_in_var_names(tokenize_line(should_be_var_names.strip()))
+            return should_be_var_names is None or \
+                (all(is_correct_variable_name_token(token) for token in should_be_var_names))
+    except ValueError:
+        return False
+
+
+def remove_irrelevant_tokens_in_var_names(tokens: List[tokenize.TokenInfo]) -> Optional[List[TokenInfo]]:
+    """
+    remove tokens irrelevant for checking variable name correctness in an assignment and handle possible comments
+    because parso recognizes comments as ExprStmt
+    :param tokens: tokens that should all be variables in an assignment
+    with ENDMARKER, NEWLINE "," and "." tokens included
+    :return: tokens that should all be variables in an assignment
+    with ENDMARKER, NEWLINE "," and "." tokens removed or None when is comment
+    """
+    # check for comment
+    if any(token for token in tokens if token.type == tokenize.COMMENT):
+        return None
+
+    striped = [token for token in tokens
+               if token.type != tokenize.ENDMARKER
+               and token.type != tokenize.NEWLINE
+               and token.string != ","
+               and token.string != "."]
+    # remove last OP type token for the usage of "+=" etc
+    if striped[-1].type == tokenize.OP:
+        striped.remove(striped[-1])
+    return striped
 
 
 def is_correct_variable_name_token(token: tokenize.TokenInfo) -> bool:
@@ -164,11 +158,48 @@ def is_correct_variable_name_token(token: tokenize.TokenInfo) -> bool:
 
 
 def get_root_node(filename: str) -> parso.python.tree.Module:
+    """
+    Get root Module node of a tree made by parso
+    :param filename: path to python file to construct a tree from
+    :return: Module node
+    """
     grammar = parso.load_grammar()
     module = grammar.parse(read_file(filename))
     return module.get_root_node()
 
 
-def find_error_nodes(filename):
+def find_error_nodes(filename: str) -> List[parso.python.tree.PythonErrorNode]:
+    """
+    Get error nodes of a tree made by parso
+    :param filename: path to python file to construct a tree from
+    :return: list of error nodes
+    """
     root_node = get_root_node(filename)
     return find_nodes_of_type(root_node, parso.python.tree.PythonErrorNode)
+
+
+def count_brackets(string: str) -> Tuple[int, int, int]:
+    """
+    Count the number of miss matched brackets
+    :param string: String to count from
+    :return: Tuple[normal: int, square: int, curly: int]
+    """
+    brackets_normal = 0
+    brackets_square = 0
+    brackets_curly = 0
+    stack = list(string)
+    while stack:
+        current = stack.pop(0)
+        if current == "(":
+            brackets_normal += 1
+        elif current == ")":
+            brackets_normal -= 1
+        elif current == "[":
+            brackets_square += 1
+        elif current == "]":
+            brackets_square -= 1
+        elif current == "{":
+            brackets_curly += 1
+        elif current == "}":
+            brackets_curly -= 1
+    return brackets_normal, brackets_square, brackets_curly

@@ -2,7 +2,7 @@
 Different checks for finding possible errors.
 """
 import tokenize
-from typing import Tuple, List, Union
+from typing import Tuple, List, Union, Optional
 from colon_statements import *
 from tokenize import TokenInfo
 import utils
@@ -20,31 +20,13 @@ class IndentationErrorType(enum.Enum):
     NO_NEW_INDENT = 4
 
 
-def count_brackets(string: str) -> Tuple[int, int, int]:
+class BracketErrorType(enum.Enum):
     """
-    Count the number of miss matched brackets
-    :param string: String to count from
-    :return: Tuple[normal: int, square: int, curly: int]
+    Enum for bracket miss match errors
     """
-    brackets_normal = 0
-    brackets_square = 0
-    brackets_curly = 0
-    stack = list(string)
-    while stack:
-        current = stack.pop(0)
-        if current == "(":
-            brackets_normal += 1
-        elif current == ")":
-            brackets_normal -= 1
-        elif current == "[":
-            brackets_square += 1
-        elif current == "]":
-            brackets_square -= 1
-        elif current == "{":
-            brackets_curly += 1
-        elif current == "}":
-            brackets_curly -= 1
-    return brackets_normal, brackets_square, brackets_curly
+    NORMAL_SQUARE = 1
+    NORMAL_CURLY = 2
+    CURLY_SQUARE = 3
 
 
 def check_missing_brackets(error_node: parso.python.tree.PythonErrorNode) -> Tuple[int, int, int]:
@@ -57,11 +39,12 @@ def check_missing_brackets(error_node: parso.python.tree.PythonErrorNode) -> Tup
     """
     error_code = error_node.get_code()
     error_code = error_code.strip()
-    return count_brackets(error_code)
+    return utils.count_brackets(error_code)
 
 
 def check_print_missing_brackets(error_node: parso.python.tree.PythonErrorNode) -> bool:
     """
+    Check for python 2 style print usage (without brackets)
     :param error_node: parso.python.tree.PythonErrorNode
     :return: True/False
     """
@@ -72,7 +55,7 @@ def check_print_missing_brackets(error_node: parso.python.tree.PythonErrorNode) 
     return False
 
 
-def check_missing_colon(error_node: parso.python.tree.PythonErrorNode) -> Union[None, str]:
+def check_missing_colon(error_node: parso.python.tree.PythonErrorNode) -> Optional[str]:
     """
     Uses colon_statements to determine if there is a missing
     colon after a statement that should be followed by one.
@@ -99,7 +82,7 @@ def check_invalid_function_def(error_node: parso.python.tree.PythonErrorNode) ->
     return "def" in error_code
 
 
-def check_missing_function_def_parts(line: str) -> Union[None, str]:
+def check_missing_function_def_parts(line: str) -> Optional[str]:
     """
     Check if the line is a proper function definition.
     :param line: line to check
@@ -116,48 +99,53 @@ def check_missing_function_def_parts(line: str) -> Union[None, str]:
     return None
 
 
-def check_invalid_function_name(tokens: List[TokenInfo]) -> Union[None, str]:
+def check_invalid_function_name(tokens: List[TokenInfo]) -> Optional[str]:
     """
     Check if there is a correct function name used in the function definition.
     :param tokens: tokens to check
-    :return: None if no error found otherwise a string representing what type of error was found todo: enum
+    :return: None if no error found otherwise a string representing what type of error was found
     """
     if len(tokens) > 1 and tokens[1].string == "=":
         return "="
     if len(tokens) >= 6:
         should_be_variable_name = tokens[1]
-        if should_be_variable_name.type == tokenize.NAME:
+        if should_be_variable_name.type == tokenize.NAME \
+                and utils.is_correct_variable_name(should_be_variable_name.string):
             return None
         else:
             return should_be_variable_name.string
 
 
-def check_miss_matched_bracket_type(path: str) -> int:
+def check_miss_matched_bracket_type(path: str) -> Optional[BracketErrorType]:
     """
     Check for miss matched brackets
     :param path: path to file
-    :return: 1, 2, or 3 based on the type of brackets todo: enum
+    :return: Type of miss match or None if there is none
     """
     file_as_string = utils.read_file(path)
-    brackets_count = count_brackets(file_as_string)
-    normal_brackets_are_equal = brackets_count[0] % 2 == 0
-    square_brackets_are_equal = brackets_count[1] % 2 == 0
-    curly_brackets_are_equal = brackets_count[2] % 2 == 0
+    brackets_count = utils.count_brackets(file_as_string)
+    normal_brackets_are_even = brackets_count[0] % 2 == 0
+    square_brackets_are_even = brackets_count[1] % 2 == 0
+    curly_brackets_are_even = brackets_count[2] % 2 == 0
 
-    if not normal_brackets_are_equal and not square_brackets_are_equal:
-        return 1
-    elif not normal_brackets_are_equal and not curly_brackets_are_equal:
-        return 2
-    elif not curly_brackets_are_equal and not square_brackets_are_equal:
-        return 3
-    return 0
+    if not normal_brackets_are_even and not square_brackets_are_even:
+        return BracketErrorType.NORMAL_SQUARE
+    elif not normal_brackets_are_even and not curly_brackets_are_even:
+        return BracketErrorType.NORMAL_CURLY
+    elif not curly_brackets_are_even and not square_brackets_are_even:
+        return BracketErrorType.CURLY_SQUARE
+    return None
 
 
 def check_invalid_indentation(path: str) -> Tuple[int, str, str, IndentationErrorType]:
+    # TODO
     """
     Check if the file contains any indentation errors.
     :param path: Path to file
-    :return: Tuple[line number: int, error line str, previous start of indentation block line str, IndentationErrorType]
+    :return: Tuple[line number: int,
+                    error line: str,
+                    previous start of indentation block line: str,
+                    IndentationErrorType]
     """
     level_stack = [0]
     statement_lines = [None]
@@ -216,29 +204,29 @@ def check_invalid_indentation(path: str) -> Tuple[int, str, str, IndentationErro
             return i + 1, line, statement_lines[0], IndentationErrorType.HIGHER_LEVEL_WITHOUT_START
 
 
-def check_invalid_assignment_expr(root_node: parso.python.tree.Module) -> List[parso.python.tree.ExprStmt]:
+def check_invalid_assignment_expr(root_node: parso.python.tree.Module) -> Optional[List[parso.python.tree.ExprStmt]]:
     """
-
-    :param root_node:
-    :return:
+    Check for errors in tree constructed by parso
+    :param root_node: parso.python.tree.Module root node for tree
+    :return: List of parso.python.tree.ExprStmt nodes for every bad statement found or None if none were found
     """
     expr_nodes = utils.find_nodes_of_type(root_node, parso.python.tree.ExprStmt)
     bad_exprs = []
     for expr in expr_nodes:
         code = expr.get_code().strip()
-        print(code)
-        print(utils.tokenize_line(code))
-        tokens = utils.tokenize_line(code)
-        if utils.is_correct_assignment_signature(tokens) \
-                and utils.is_correct_variable_name_token(tokens[0]):
-            pass
-        else:
+        if not utils.is_correct_assignment_signature(code):
             bad_exprs.append(expr)
 
-    return bad_exprs
+    return bad_exprs if len(bad_exprs) != 0 else None
 
 
-def check_quote_error(root_node: parso.python.tree.Module):
+def check_quote_error(root_node: parso.python.tree.Module) -> Optional[List[parso.python.tree.PythonErrorLeaf]]:
+    """
+    Check if there are any parso.python.tree.PythonErrorLeaf nodes in the tree and if they contain a quote symbol
+    (if yes this should be a quotation error)
+    :param root_node: parso.python.tree.Module root node for tree
+    :return: List of parso.python.tree.PythonErrorLeaf nodes for every quote error found or None if none were found
+    """
     leaf_error_nodes = utils.find_nodes_of_type(root_node, parso.python.tree.PythonErrorLeaf)
     leaf_error_nodes = [leaf for leaf in leaf_error_nodes if leaf.get_code() == "'" or leaf.get_code() == "\""]
     if len(leaf_error_nodes) > 0:

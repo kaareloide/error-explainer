@@ -1,5 +1,5 @@
 import unittest
-from temp.test_utils import run_test_scenario
+from ..test_utils import run_test_scenario
 from messages import get_formatted_message
 
 
@@ -40,6 +40,16 @@ class AssignmentTest(unittest.TestCase):
         expected_messages = [get_formatted_message("invalid_assignment", statement="True = 1", line=1),
                              get_formatted_message("invalid_assignment", statement="f() = 1", line=6)]
         run_test_scenario(self, path, 2, expected_messages)
+
+    def test_comparison_assignment(self):
+        path = "tests/assignment_tests/samples/comparison_assignment_correct.py"
+        expected_message = get_formatted_message("missing_brackets.normal.closing", count=1, line=1)
+        run_test_scenario(self, path, 1, expected_message)
+
+    def test_tuple_assignment(self):
+        path = "tests/assignment_tests/samples/tuple_assign_correct.py"
+        expected_message = get_formatted_message("missing_brackets.normal.closing", count=1, line=1)
+        run_test_scenario(self, path, 1, expected_message)
 
 
 if __name__ == '__main__':
