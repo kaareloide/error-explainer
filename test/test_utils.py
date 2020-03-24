@@ -13,7 +13,7 @@ def run_sanity_test(test_case: TestCase, path: str) -> NoReturn:
     :param path: path to file
     """
     expected_message = get_formatted_message(
-        "missing_brackets.normal.closing", count=1, line=1
+        "missing_brackets.normal.closing", count=1, line_start=1, line_end=1
     )
     run_test_scenario(test_case, path, 1, expected_message)
 

@@ -77,7 +77,7 @@ def quote_errors_check(filename: str) -> NoReturn:
             add_message(
                 "invalid_quotes",
                 quote=res.get_code(),
-                line=get_line_location_start(res),
+                line_start=get_line_location_start(res),
                 pos=get_location_on_line(res),
             )
 
@@ -106,17 +106,19 @@ def indentation_errors_check(filename: str) -> NoReturn:
 def invalid_function_def_check(filename: str) -> NoReturn:
     found_errors = find_error_nodes(filename)
     for error in found_errors:
-        line_num = get_line_location_end(error)
         if check_invalid_function_def(error):
-            error_line = get_lines(filename, [line_num - 1])[0]
+            error_line = get_lines(filename, [get_line_location_end(error) - 1])[0]
             tokens = tokenize_line(error_line)
             invalid_function_name_res = check_invalid_function_name(tokens)
             if invalid_function_name_res == "=":
-                add_message("invalid_function_name.assign_to_def", line=line_num)
+                add_message(
+                    "invalid_function_name.assign_to_def",
+                    line_end=get_line_location_end(error),
+                )
             elif invalid_function_name_res is not None:
                 add_message(
                     "invalid_function_name",
-                    line=line_num,
+                    line_end=get_line_location_end(error),
                     invalid_name=invalid_function_name_res,
                 )
             else:
@@ -126,7 +128,8 @@ def invalid_function_def_check(filename: str) -> NoReturn:
                 if missing_function_parts_res is not None:
                     add_message(
                         "missing_function_parts",
-                        line=line_num,
+                        line_start=get_line_location_start(error),
+                        line_end=get_line_location_end(error),
                         invalid_def=missing_function_parts_res,
                     )
 
@@ -135,7 +138,6 @@ def invalid_function_def_check(filename: str) -> NoReturn:
 def missing_brackets_check(filename: str) -> NoReturn:
     found_errors = find_error_nodes(filename)
     for error in found_errors:
-        line_num = get_line_location_start(error)
         normal_brackets, square_brackets, curly_brackets = check_missing_brackets(error)
 
         if normal_brackets + square_brackets + curly_brackets != 0:
@@ -145,37 +147,43 @@ def missing_brackets_check(filename: str) -> NoReturn:
                     add_message(
                         "missing_brackets.normal.opening",
                         count=abs(normal_brackets),
-                        line=line_num,
+                        line_start=get_line_location_start(error),
+                        line_end=get_line_location_end(error),
                     )
                 elif normal_brackets > 0:
                     add_message(
                         "missing_brackets.normal.closing",
                         count=abs(normal_brackets),
-                        line=line_num,
+                        line_start=get_line_location_start(error),
+                        line_end=get_line_location_end(error),
                     )
                 elif square_brackets < 0:
                     add_message(
                         "missing_brackets.square.opening",
                         count=abs(square_brackets),
-                        line=line_num,
+                        line_start=get_line_location_start(error),
+                        line_end=get_line_location_end(error),
                     )
                 elif square_brackets > 0:
                     add_message(
                         "missing_brackets.square.closing",
                         count=abs(square_brackets),
-                        line=line_num,
+                        line_start=get_line_location_start(error),
+                        line_end=get_line_location_end(error),
                     )
                 elif curly_brackets < 0:
                     add_message(
                         "missing_brackets.curly.opening",
                         count=abs(curly_brackets),
-                        line=line_num,
+                        line_start=get_line_location_start(error),
+                        line_end=get_line_location_end(error),
                     )
                 elif curly_brackets > 0:
                     add_message(
                         "missing_brackets.curly.closing",
                         count=abs(curly_brackets),
-                        line=line_num,
+                        line_start=get_line_location_start(error),
+                        line_end=get_line_location_end(error),
                     )
 
 
@@ -183,17 +191,28 @@ def missing_brackets_check(filename: str) -> NoReturn:
 def miss_matched_bracket_check(filename: str) -> NoReturn:
     found_errors = find_error_nodes(filename)
     for error in found_errors:
-        line_num = get_line_location_start(error)
         normal_brackets, square_brackets, curly_brackets = check_missing_brackets(error)
 
         if normal_brackets + square_brackets + curly_brackets != 0:
             miss_matched_bracket_type_res = check_miss_matched_bracket_type(filename)
             if miss_matched_bracket_type_res == BracketErrorType.NORMAL_SQUARE:
-                add_message("miss_matched_brackets.square.normal", line=line_num)
+                add_message(
+                    "miss_matched_brackets.square.normal",
+                    line_start=get_line_location_start(error),
+                    line_end=get_line_location_end(error),
+                )
             elif miss_matched_bracket_type_res == BracketErrorType.NORMAL_CURLY:
-                add_message("miss_matched_brackets.curly.normal", line=line_num)
+                add_message(
+                    "miss_matched_brackets.curly.normal",
+                    line_start=get_line_location_start(error),
+                    line_end=get_line_location_end(error),
+                )
             elif miss_matched_bracket_type_res == BracketErrorType.CURLY_SQUARE:
-                add_message("miss_matched_brackets.curly.square", line=line_num)
+                add_message(
+                    "miss_matched_brackets.curly.square",
+                    line_start=get_line_location_start(error),
+                    line_end=get_line_location_end(error),
+                )
 
 
 @add_check
@@ -201,7 +220,9 @@ def missing_brackets_print_check(filename: str) -> NoReturn:
     found_errors = find_error_nodes(filename)
     for error in found_errors:
         if check_print_missing_brackets(error):
-            add_message("missing_brackets.print", line=get_line_location_start(error))
+            add_message(
+                "missing_brackets.print", line_start=get_line_location_start(error)
+            )
 
 
 @add_check
@@ -225,7 +246,9 @@ def missing_colon_check(filename: str) -> NoReturn:
             res = check_missing_colon(error)
             if res is not None:
                 add_message(
-                    "missing_colon", line=get_line_location_end(error), statement=res
+                    "missing_colon",
+                    line_end=get_line_location_end(error),
+                    statement=res,
                 )
 
 
@@ -238,5 +261,6 @@ def invalid_assignment_check(filename: str) -> NoReturn:
             add_message(
                 "invalid_assignment",
                 statement=res.get_code().strip(),
-                line=get_line_location_end(res),
+                line_start=get_line_location_start(res),
+                line_end=get_line_location_end(res),
             )
