@@ -12,12 +12,18 @@ def run_sanity_test(test_case: TestCase, path: str) -> NoReturn:
     :param test_case: self of TestCase
     :param path: path to file
     """
-    expected_message = get_formatted_message("missing_brackets.normal.closing", count=1, line=1)
+    expected_message = get_formatted_message(
+        "missing_brackets.normal.closing", count=1, line=1
+    )
     run_test_scenario(test_case, path, 1, expected_message)
 
 
-def run_test_scenario(test_case: TestCase, path: str, expected_messages_count: int,
-                      expected_messages: Union[List[str], str, None]) -> NoReturn:
+def run_test_scenario(
+    test_case: TestCase,
+    path: str,
+    expected_messages_count: int,
+    expected_messages: Union[List[str], str, None],
+) -> NoReturn:
     """
     Default test scenario for checking errors in a python file.
     :param test_case: self of TestCase
