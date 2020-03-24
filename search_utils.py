@@ -3,8 +3,9 @@ from typing import List
 import parso
 
 
-def find_nodes_of_type(root_node: parso.python.tree.Module, node_type: parso.python.tree.PythonBaseNode) \
-        -> List[parso.python.tree.PythonBaseNode]:
+def find_nodes_of_type(
+    root_node: parso.python.tree.Module, node_type: parso.python.tree.PythonBaseNode
+) -> List[parso.python.tree.PythonBaseNode]:
     """
     :param root_node: root node of the partial AST given by parso
     :param node_type: type of node to search for

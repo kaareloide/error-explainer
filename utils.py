@@ -82,7 +82,10 @@ def is_colon_statement_line(line: str) -> bool:
     :param line: line to check
     :return: True/False
     """
-    return any(statement in line for statement in list(colon_statements.keys())) and ":" in line
+    return (
+        any(statement in line for statement in list(colon_statements.keys()))
+        and ":" in line
+    )
 
 
 def count_leading_spaces(string: str) -> int:
@@ -117,14 +120,22 @@ def is_correct_assignment_signature(code: str) -> bool:
         if code[equals_index + 1] != "=":
             # next symbol should not be another equals sign after the first one
             should_be_var_names = code.split("=")[0]
-            should_be_var_names = remove_irrelevant_tokens_in_var_names(tokenize_line(should_be_var_names.strip()))
-            return should_be_var_names is None or \
-                (all(is_correct_variable_name_token(token) for token in should_be_var_names))
+            should_be_var_names = remove_irrelevant_tokens_in_var_names(
+                tokenize_line(should_be_var_names.strip())
+            )
+            return should_be_var_names is None or (
+                all(
+                    is_correct_variable_name_token(token)
+                    for token in should_be_var_names
+                )
+            )
     except ValueError:
         return False
 
 
-def remove_irrelevant_tokens_in_var_names(tokens: List[tokenize.TokenInfo]) -> Optional[List[TokenInfo]]:
+def remove_irrelevant_tokens_in_var_names(
+    tokens: List[tokenize.TokenInfo],
+) -> Optional[List[TokenInfo]]:
     """
     remove tokens irrelevant for checking variable name correctness in an assignment and handle possible comments
     because parso recognizes comments as ExprStmt
@@ -137,11 +148,14 @@ def remove_irrelevant_tokens_in_var_names(tokens: List[tokenize.TokenInfo]) -> O
     if any(token for token in tokens if token.type == tokenize.COMMENT):
         return None
 
-    striped = [token for token in tokens
-               if token.type != tokenize.ENDMARKER
-               and token.type != tokenize.NEWLINE
-               and token.string != ","
-               and token.string != "."]
+    striped = [
+        token
+        for token in tokens
+        if token.type != tokenize.ENDMARKER
+        and token.type != tokenize.NEWLINE
+        and token.string != ","
+        and token.string != "."
+    ]
     # remove last OP type token for the usage of "+=" etc
     if striped[-1].type == tokenize.OP:
         striped.remove(striped[-1])

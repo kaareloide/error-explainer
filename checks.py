@@ -14,6 +14,7 @@ class IndentationErrorType(enum.Enum):
     """
     Enum for types of indentation errors.
     """
+
     HIGHER_LEVEL_WITHOUT_START = 1
     DOES_NOT_MATCH_OUTER = 2
     NEW_INDENT_AT_EOF = 3
@@ -24,12 +25,15 @@ class BracketErrorType(enum.Enum):
     """
     Enum for bracket miss match errors
     """
+
     NORMAL_SQUARE = 1
     NORMAL_CURLY = 2
     CURLY_SQUARE = 3
 
 
-def check_missing_brackets(error_node: parso.python.tree.PythonErrorNode) -> Tuple[int, int, int]:
+def check_missing_brackets(
+    error_node: parso.python.tree.PythonErrorNode,
+) -> Tuple[int, int, int]:
     """
     Check if there are any missing brackets in the code of the given PythonErrorNode.
     :param error_node: parso.python.tree.PythonErrorNode
@@ -94,7 +98,11 @@ def check_missing_function_def_parts(line: str) -> Optional[str]:
     if len(tokens) < 5:
         return line
     else:
-        if not utils.is_correct_variable_name(tokens[1].string) or tokens[2].string != "(" or tokens[-2].string != ")":
+        if (
+            not utils.is_correct_variable_name(tokens[1].string)
+            or tokens[2].string != "("
+            or tokens[-2].string != ")"
+        ):
             return line
     return None
 
@@ -109,8 +117,10 @@ def check_invalid_function_name(tokens: List[TokenInfo]) -> Optional[str]:
         return "="
     if len(tokens) >= 6:
         should_be_variable_name = tokens[1]
-        if should_be_variable_name.type == tokenize.NAME \
-                and utils.is_correct_variable_name(should_be_variable_name.string):
+        if (
+            should_be_variable_name.type == tokenize.NAME
+            and utils.is_correct_variable_name(should_be_variable_name.string)
+        ):
             return None
         else:
             return should_be_variable_name.string
@@ -170,7 +180,12 @@ def check_invalid_indentation(path: str) -> Tuple[int, str, str, IndentationErro
 
     if utils.is_colon_statement_line(lines[len(lines) - 1]):
         # Last Line starts new indentation block
-        return len(lines), lines[len(lines) - 1], lines[len(lines) - 1], IndentationErrorType.NEW_INDENT_AT_EOF
+        return (
+            len(lines),
+            lines[len(lines) - 1],
+            lines[len(lines) - 1],
+            IndentationErrorType.NEW_INDENT_AT_EOF,
+        )
     for i, line in enumerate(lines):
         space_count = utils.count_leading_spaces(line)
         if is_correct_indent_level(line):
@@ -180,31 +195,55 @@ def check_invalid_indentation(path: str) -> Tuple[int, str, str, IndentationErro
                 statement_lines.insert(0, line)
                 try:
                     next_non_comment_line = get_next_non_comment_line(lines, i + 1)
-                    next_indentation_level = utils.count_leading_spaces(next_non_comment_line)
+                    next_indentation_level = utils.count_leading_spaces(
+                        next_non_comment_line
+                    )
                     if next_indentation_level <= level_stack[0]:
                         # If no new indent after start of block statement and is not comment line
-                        return i + 1, next_non_comment_line, statement_lines[0], IndentationErrorType.NO_NEW_INDENT
+                        return (
+                            i + 1,
+                            next_non_comment_line,
+                            statement_lines[0],
+                            IndentationErrorType.NO_NEW_INDENT,
+                        )
                     level_stack.insert(0, next_indentation_level)
                 except IndexError:
                     # New indentation started at the last line
-                    return i + 1, line, statement_lines[0], IndentationErrorType.NEW_INDENT_AT_EOF
+                    return (
+                        i + 1,
+                        line,
+                        statement_lines[0],
+                        IndentationErrorType.NEW_INDENT_AT_EOF,
+                    )
 
         elif is_lower_indentation(line):
             # If indentation level is lower check stack
             if space_count in level_stack:
                 # If stack has that level, remove from start until that level
                 index = level_stack.index(space_count) + 1
-                del level_stack[0:index - 1]
-                del statement_lines[0:index - 1]
+                del level_stack[0 : index - 1]
+                del statement_lines[0 : index - 1]
             else:
                 # If that level was not in stack, then line does not match any outer indentation level
-                return i + 1, line, statement_lines[0], IndentationErrorType.DOES_NOT_MATCH_OUTER
+                return (
+                    i + 1,
+                    line,
+                    statement_lines[0],
+                    IndentationErrorType.DOES_NOT_MATCH_OUTER,
+                )
         else:
             # Higher level of indentation without start of new block
-            return i + 1, line, statement_lines[0], IndentationErrorType.HIGHER_LEVEL_WITHOUT_START
+            return (
+                i + 1,
+                line,
+                statement_lines[0],
+                IndentationErrorType.HIGHER_LEVEL_WITHOUT_START,
+            )
 
 
-def check_invalid_assignment_expr(root_node: parso.python.tree.Module) -> Optional[List[parso.python.tree.ExprStmt]]:
+def check_invalid_assignment_expr(
+    root_node: parso.python.tree.Module,
+) -> Optional[List[parso.python.tree.ExprStmt]]:
     """
     Check for errors in tree constructed by parso
     :param root_node: parso.python.tree.Module root node for tree
@@ -220,15 +259,23 @@ def check_invalid_assignment_expr(root_node: parso.python.tree.Module) -> Option
     return bad_exprs if len(bad_exprs) != 0 else None
 
 
-def check_quote_error(root_node: parso.python.tree.Module) -> Optional[List[parso.python.tree.PythonErrorLeaf]]:
+def check_quote_error(
+    root_node: parso.python.tree.Module,
+) -> Optional[List[parso.python.tree.PythonErrorLeaf]]:
     """
     Check if there are any parso.python.tree.PythonErrorLeaf nodes in the tree and if they contain a quote symbol
     (if yes this should be a quotation error)
     :param root_node: parso.python.tree.Module root node for tree
     :return: List of parso.python.tree.PythonErrorLeaf nodes for every quote error found or None if none were found
     """
-    leaf_error_nodes = utils.find_nodes_of_type(root_node, parso.python.tree.PythonErrorLeaf)
-    leaf_error_nodes = [leaf for leaf in leaf_error_nodes if leaf.get_code() == "'" or leaf.get_code() == "\""]
+    leaf_error_nodes = utils.find_nodes_of_type(
+        root_node, parso.python.tree.PythonErrorLeaf
+    )
+    leaf_error_nodes = [
+        leaf
+        for leaf in leaf_error_nodes
+        if leaf.get_code() == "'" or leaf.get_code() == '"'
+    ]
     if len(leaf_error_nodes) > 0:
         return leaf_error_nodes
     else:
