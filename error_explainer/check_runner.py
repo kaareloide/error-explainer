@@ -3,7 +3,7 @@ from typing import NoReturn, Any, List, Callable
 
 import parso
 
-from checks import (
+from error_explainer.checks import (
     check_quote_error,
     check_invalid_function_def,
     check_invalid_function_name,
@@ -15,13 +15,13 @@ from checks import (
     check_invalid_assignment_expr,
     BracketErrorType,
 )
-from messages import get_formatted_message
-from search_utils import (
+from error_explainer.messages import get_formatted_message
+from error_explainer.search_utils import (
     get_line_location_start,
     get_location_on_line,
     get_line_location_end,
 )
-from utils import get_root_node, find_error_nodes, get_lines, tokenize_line, read_file
+from error_explainer.utils import get_root_node, find_error_nodes, get_lines, tokenize_line, read_file
 
 checks = []
 messages = []
@@ -76,7 +76,7 @@ def quote_errors_check(filename: str) -> NoReturn:
         for res in results:
             add_message(
                 "invalid_quotes",
-                quote=res.get_code(),
+                quote=res.get_code().strip(),
                 line_start=get_line_location_start(res),
                 pos=get_location_on_line(res),
             )

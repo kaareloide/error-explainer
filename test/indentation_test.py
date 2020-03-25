@@ -1,9 +1,9 @@
 import ast
 import unittest
 
-import utils
+from error_explainer import utils
 from test.test_utils import run_test_scenario
-from messages import get_formatted_message
+from error_explainer.messages import get_formatted_message
 
 
 class IndentationTest(unittest.TestCase):

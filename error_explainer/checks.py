@@ -2,10 +2,10 @@
 Different checks for finding possible errors.
 """
 import tokenize
-from typing import Tuple, List, Union, Optional
-from colon_statements import *
+from typing import Tuple, List, Optional
+from error_explainer.colon_statements import *
 from tokenize import TokenInfo
-import utils
+from error_explainer import utils
 import enum
 import parso
 
@@ -93,7 +93,6 @@ def check_missing_function_def_parts(line: str) -> Optional[str]:
     :return: None if proper definition, given line if error found.
     """
     tokens = utils.tokenize_line(line)
-    print(tokens)
     line = line.strip()
     if len(tokens) < 5:
         return line
@@ -268,13 +267,14 @@ def check_quote_error(
     :param root_node: parso.python.tree.Module root node for tree
     :return: List of parso.python.tree.PythonErrorLeaf nodes for every quote error found or None if none were found
     """
+    # TODO docstring and miss matched quotes
     leaf_error_nodes = utils.find_nodes_of_type(
         root_node, parso.python.tree.PythonErrorLeaf
     )
     leaf_error_nodes = [
         leaf
         for leaf in leaf_error_nodes
-        if leaf.get_code() == "'" or leaf.get_code() == '"'
+        if leaf.get_code().strip() == "'" or leaf.get_code().strip() == '"'
     ]
     if len(leaf_error_nodes) > 0:
         return leaf_error_nodes

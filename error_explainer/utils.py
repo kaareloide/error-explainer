@@ -5,10 +5,10 @@ from tokenize import TokenInfo
 
 import parso
 
-from colon_statements import colon_statements
-from typing import List, Tuple, AnyStr, Any, Optional
+from error_explainer.colon_statements import colon_statements
+from typing import List, Tuple, AnyStr, Optional
 
-from search_utils import find_nodes_of_type
+from error_explainer.search_utils import find_nodes_of_type
 
 
 def read_lines(path: str) -> List[AnyStr]:

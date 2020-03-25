@@ -1,8 +1,8 @@
 from unittest import TestCase
 from typing import NoReturn, List, Union
 
-from check_runner import run_checks
-from messages import get_formatted_message
+from error_explainer.check_runner import run_checks
+from error_explainer.messages import get_formatted_message
 
 
 def run_sanity_test(test_case: TestCase, path: str) -> NoReturn:
@@ -32,13 +32,13 @@ def run_test_scenario(
     :param expected_messages: 1 or more expected messages can be string or list
     """
     messages = run_checks(path)
-
+    print(f"expected {expected_messages}")
+    print(f"actual {messages}")
     # Errors found must equal expected error count
     test_case.assertEqual(expected_messages_count, len(messages))
     # Simple_message must be the one expected
     if expected_messages is not None:
         if type(expected_messages) == str:
             expected_messages = [expected_messages]
-        print(f"expected {expected_messages}")
-        print(f"actual {messages}")
+
         test_case.assertTrue(set(expected_messages) == set(messages))
