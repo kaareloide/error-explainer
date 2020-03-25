@@ -1,3 +1,5 @@
+include *.lock
 include *.py
-recursive-include error_explainer *.py
+include *.txt
+include Pipfile
 recursive-include test *.py
