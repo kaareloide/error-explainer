@@ -21,7 +21,13 @@ from error_explainer.search_utils import (
     get_location_on_line,
     get_line_location_end,
 )
-from error_explainer.utils import get_root_node, find_error_nodes, get_lines, tokenize_line, read_file
+from error_explainer.utils import (
+    get_root_node,
+    find_error_nodes,
+    get_lines,
+    tokenize_line,
+    read_file,
+)
 
 checks = []
 messages = []

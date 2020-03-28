@@ -1,6 +1,6 @@
-from typing import Any
+from typing import Any, NoReturn
 
-messages = {
+_messages = {
     "missing_brackets.normal.closing": 'It looks like there are missing closing bracket(s) ")" ({count}) '
     "beginning on line {line_start} and ending on line {line_end}.",
     "missing_brackets.normal.opening": 'It looks like there are missing opening bracket(s) "(" ({count}) '
@@ -69,4 +69,39 @@ def get_formatted_message(message_code: str, **namespace: Any) -> str:
     :param namespace: kwargs for variables in the message
     :return: message corresponding to the code with arguments inserted
     """
-    return messages.get(message_code).format(**namespace)
+    return _messages.get(message_code).format(**namespace)
+
+
+def add_message(message_code: str, message_text: str) -> NoReturn:
+    """
+    Add a new message to the list of possible error explanations,
+    if message for code already exists, KeyError will be raised
+    :param message_code: code used as a key to later get the message
+    :param message_text: explanation message text custom variable can be inserted using curly brackets
+    """
+    if message_code not in _messages.keys():
+        _messages[message_code] = message_text
+    else:
+        raise KeyError(f'Message for code "{message_code}" already exists')
+
+
+def remove_message(message_code: str) -> NoReturn:
+    """
+    Remove message from possible explanations, if matching code was not found KeyError will be raised
+    :param message_code: code for the message to be removed
+    """
+    if _messages.pop(message_code, None) is None:
+        raise KeyError(f'Message for code "{message_code}" not found')
+
+
+def overwrite_message(message_code: str, message_text: str) -> NoReturn:
+    """
+    Overwrite a message for the given code, if matching code was not found KeyError will be raised
+    :param message_code: code used as a key for the message to be overwritten
+    :param message_text: explanation message text custom variable can be inserted using curly brackets
+    :return:
+    """
+    if message_code in _messages.keys():
+        _messages[message_code] = message_text
+    else:
+        raise KeyError(f'Message for code "{message_code}" not found')
