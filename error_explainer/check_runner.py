@@ -29,7 +29,7 @@ from error_explainer.utils import (
     read_file,
 )
 
-checks = []
+checks = dict()
 messages = []
 
 
@@ -37,7 +37,7 @@ def add_check(func: Callable) -> Callable:
     """
     Decorator for adding a check to the list of checks to run when calling run_checks
     """
-    checks.append(func)
+    checks[func.__name__] = func
 
     def wrapper(**kwargs):
         return func(**kwargs)
@@ -58,8 +58,8 @@ def run_checks(filename: str) -> List[str]:
         ast.parse(read_file(filename))
     except Exception:
         # if not then there is a syntax error and checks need to be ran
-        for c in checks:
-            c(filename)
+        for c in checks.keys():
+            checks.get(c)(filename)
 
     return messages
 
@@ -72,6 +72,23 @@ def add_message(code: str, **namespace: Any) -> NoReturn:
      must be defined in the message found in messages.py
     """
     messages.append(get_formatted_message(code, **namespace))
+
+
+def remove_check(name: str) -> NoReturn:
+    """
+    Remove a check function from the list of checks ran with run_checks()
+    :param name: name of the check function to be removed
+    """
+    if checks.pop(name, None) is None:
+        raise KeyError(f"Check with the name {name} not found")
+
+
+def list_checks() -> List[str]:
+    """
+    List checks by name that will be ran with run_checks()
+    :return: list check function names
+    """
+    return list(checks.keys())
 
 
 @add_check
