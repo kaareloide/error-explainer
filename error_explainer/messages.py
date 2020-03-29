@@ -45,8 +45,8 @@ _messages = {
     " beginning on line {line_start} and ending on line {line_end}\n"
     "Function definition should be in the form of:\n "
     '"def function_name(argument1, argument2, ...):"',
-    "invalid_function_bracket": 'There is a bracket right after def on line {line_end}. \n'
-                                '"def" should be followed by the name of the function.',
+    "invalid_function_bracket": "There is a bracket right after def on line {line_end}. \n"
+    '"def" should be followed by the name of the function.',
     "invalid_indentation.1": 'There is an error in the indentation on line number {line} ("{error_line}"). '
     "The line has a higher level of indentation but a new matching indentation block "
     'was newer started. Last start of an indentation block was "{last_start_of_block}".',
@@ -61,12 +61,11 @@ _messages = {
     "and ending on line {line_end}\n"
     "Assignments should be in the format of variable_name,variable_name,... = expression",
     "invalid_quotes": "There is a missing {quote} that should match the one on line {line_start} at position {pos}.",
-
-    "miss_matched_quotes": 'There is a mix of single and double quotes used from line {line_start} to line {line_end}',
+    "miss_matched_quotes": "There is a mix of single and double quotes used from line {line_start} to line {line_end}",
     "invalid_quotes_triple": "There are missing triple quotes {quote} that should match the ones on line {line_start} "
-                             "at position {pos}.",
+    "at position {pos}.",
     "missing_docstring_quotes": "There seem to be some missing quotes at the end of the docstring starting "
-                                "on line {line_start}"
+    "on line {line_start}",
 }
 
 

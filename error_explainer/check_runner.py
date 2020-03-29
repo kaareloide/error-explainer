@@ -14,7 +14,9 @@ from error_explainer.checks import (
     check_missing_colon,
     check_invalid_assignment_expr,
     BracketErrorType,
-    check_docstring_quote_error, check_invalid_indentation)
+    check_docstring_quote_error,
+    check_invalid_indentation,
+)
 from error_explainer.messages import get_formatted_message
 from error_explainer.search_utils import (
     get_line_location_start,
@@ -39,6 +41,7 @@ def add_check(force: bool) -> Callable:
      Decorator for adding a check to the list of checks to run when calling run_checks
      :param force True/False if this should be a forced check, meaning it should be run even when the code compiles
     """
+
     def dec(func):
         if type(force) != bool:
             raise AttributeError("Force parameter must be defined in the decorator")
@@ -49,7 +52,9 @@ def add_check(force: bool) -> Callable:
 
         def wrapper(**kwargs):
             return func(*kwargs)
+
         return wrapper
+
     return dec
 
 
@@ -109,8 +114,7 @@ def docstring_error_check(filename: str) -> NoReturn:
     result = check_docstring_quote_error(root_node)
     if result is not None:
         add_message(
-            "missing_docstring_quotes",
-            line_start=get_line_location_start(result),
+            "missing_docstring_quotes", line_start=get_line_location_start(result),
         )
 
 
@@ -119,15 +123,17 @@ def quote_errors_check(filename: str) -> NoReturn:
     root_node = get_root_node(filename)
     results = check_quote_error(root_node)
     if results is not None:
-        if len(results) == 2 \
-                and any(leaf for leaf in results if leaf.get_code().strip() == "'") \
-                and any(leaf for leaf in results if leaf.get_code().strip() == '"'):
+        if (
+            len(results) == 2
+            and any(leaf for leaf in results if leaf.get_code().strip() == "'")
+            and any(leaf for leaf in results if leaf.get_code().strip() == '"')
+        ):
             # If there are 2 PythonErrorLeaf nodes and they are of different quote types
             # then this is probably a miss match error
             add_message(
                 "miss_matched_quotes",
                 line_start=get_line_location_start(results[0]),
-                line_end=get_line_location_end(results[1])
+                line_end=get_line_location_end(results[1]),
             )
         else:
             for res in results:
@@ -164,9 +170,8 @@ def indentation_errors_check(filename: str) -> NoReturn:
                 f"invalid_indentation.{indent_error_type.value}",
                 line=indent_error_line_num,
                 last_start_of_block=last_start_of_block,
-                error_line=error_line
+                error_line=error_line,
             )
-
 
 
 @add_check(False)

@@ -274,8 +274,10 @@ def check_quote_error(
     leaf_error_nodes = [
         leaf
         for leaf in leaf_error_nodes
-        if leaf.get_code().strip() == "'" or leaf.get_code().strip() == '"'
-        or leaf.get_code().strip() == "'''" or leaf.get_code().strip() == '"""'
+        if leaf.get_code().strip() == "'"
+        or leaf.get_code().strip() == '"'
+        or leaf.get_code().strip() == "'''"
+        or leaf.get_code().strip() == '"""'
     ]
     if len(leaf_error_nodes) > 0:
         return leaf_error_nodes
@@ -295,8 +297,8 @@ def check_docstring_quote_error(
     )
 
     for leaf in leaf_error_nodes:
-        code = leaf.get_code().strip().replace('\n', '')
-        code = code.replace('\t', '')
+        code = leaf.get_code().strip().replace("\n", "")
+        code = code.replace("\t", "")
         if double_pattern.match(code) or single_pattern.match(code):
             return leaf
     return None
