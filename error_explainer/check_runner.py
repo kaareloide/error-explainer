@@ -30,19 +30,27 @@ from error_explainer.utils import (
 )
 
 checks = dict()
+force_checks = dict()
 messages = []
 
 
-def add_check(func: Callable) -> Callable:
+def add_check(force: bool) -> Callable:
     """
-    Decorator for adding a check to the list of checks to run when calling run_checks
+     Decorator for adding a check to the list of checks to run when calling run_checks
+     :param force True/False if this should be a forced check, meaning it should be run even when the code compiles
     """
-    checks[func.__name__] = func
+    def dec(func):
+        if type(force) != bool:
+            raise AttributeError("Force parameter must be defined in the decorator")
+        if force:
+            force_checks[func.__name__] = func
+        else:
+            checks[func.__name__] = func
 
-    def wrapper(**kwargs):
-        return func(**kwargs)
-
-    return wrapper
+        def wrapper(**kwargs):
+            return func(*kwargs)
+        return wrapper
+    return dec
 
 
 def run_checks(filename: str) -> List[str]:
@@ -56,8 +64,12 @@ def run_checks(filename: str) -> List[str]:
     try:
         # check if code compiles
         ast.parse(read_file(filename))
+        # run force checks
+        for c in force_checks.keys():
+            force_checks.get(c)(filename)
+
     except Exception:
-        # if not then there is a syntax error and checks need to be ran
+        # if not then there is a syntax error and regular checks need to be ran
         for c in checks.keys():
             checks.get(c)(filename)
 
@@ -79,7 +91,7 @@ def remove_check(name: str) -> NoReturn:
     Remove a check function from the list of checks ran with run_checks()
     :param name: name of the check function to be removed
     """
-    if checks.pop(name, None) is None:
+    if checks.pop(name, None) is None and force_checks.pop(name, None) is None:
         raise KeyError(f"Check with the name {name} not found")
 
 
@@ -88,10 +100,10 @@ def list_checks() -> List[str]:
     List checks by name that will be ran with run_checks()
     :return: list check function names
     """
-    return list(checks.keys())
+    return list(checks.keys()) + list(force_checks.keys())
 
 
-@add_check
+@add_check(False)
 def docstring_error_check(filename: str) -> NoReturn:
     root_node = get_root_node(filename)
     result = check_docstring_quote_error(root_node)
@@ -102,7 +114,7 @@ def docstring_error_check(filename: str) -> NoReturn:
         )
 
 
-@add_check
+@add_check(False)
 def quote_errors_check(filename: str) -> NoReturn:
     root_node = get_root_node(filename)
     results = check_quote_error(root_node)
@@ -135,7 +147,7 @@ def quote_errors_check(filename: str) -> NoReturn:
                     )
 
 
-@add_check
+@add_check(True)
 def indentation_errors_check(filename: str) -> NoReturn:
     found_errors = find_error_nodes(filename)
     if len(found_errors) == 0:
@@ -155,7 +167,7 @@ def indentation_errors_check(filename: str) -> NoReturn:
         """
 
 
-@add_check
+@add_check(False)
 def invalid_function_def_check(filename: str) -> NoReturn:
     found_errors = find_error_nodes(filename)
     for error in found_errors:
@@ -193,7 +205,7 @@ def invalid_function_def_check(filename: str) -> NoReturn:
                     )
 
 
-@add_check
+@add_check(False)
 def missing_brackets_check(filename: str) -> NoReturn:
     found_errors = find_error_nodes(filename)
     for error in found_errors:
@@ -246,7 +258,7 @@ def missing_brackets_check(filename: str) -> NoReturn:
                     )
 
 
-@add_check
+@add_check(False)
 def miss_matched_bracket_check(filename: str) -> NoReturn:
     found_errors = find_error_nodes(filename)
     for error in found_errors:
@@ -274,7 +286,7 @@ def miss_matched_bracket_check(filename: str) -> NoReturn:
                 )
 
 
-@add_check
+@add_check(False)
 def missing_brackets_print_check(filename: str) -> NoReturn:
     found_errors = find_error_nodes(filename)
     for error in found_errors:
@@ -284,7 +296,7 @@ def missing_brackets_print_check(filename: str) -> NoReturn:
             )
 
 
-@add_check
+@add_check(False)
 def missing_colon_check(filename: str) -> NoReturn:
     def should_check_for_missing_colon(e: parso.python.tree.ErrorNode) -> bool:
         """
@@ -311,7 +323,7 @@ def missing_colon_check(filename: str) -> NoReturn:
                 )
 
 
-@add_check
+@add_check(False)
 def invalid_assignment_check(filename: str) -> NoReturn:
     root_node = get_root_node(filename)
     invalid_assignment_res = check_invalid_assignment_expr(root_node)

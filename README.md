@@ -21,11 +21,12 @@ Messages will be a list of strings containing the generated messages.
 
 ### Add a new custom check
 Custom checks can be added to the list of checks ran while calling run_checks().
-To add a new check use `@add_check` annotation.
+To add a new check use `@add_check(force: bool)` annotation. Force parameter defines if the
+check is ran only if the code does not compile (False) or always (True)
 ```python
 from error_explainer.check_runner import add_check, add_message
 
-@add_check
+@add_check(False)
 def custom_check(filename):
     # code for the check  
     if error_in_file:
