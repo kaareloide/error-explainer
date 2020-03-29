@@ -1,6 +1,7 @@
 """
 Different checks for finding possible errors.
 """
+import re
 import tokenize
 from typing import Tuple, List, Optional
 from error_explainer.colon_statements import *
@@ -267,7 +268,6 @@ def check_quote_error(
     :param root_node: parso.python.tree.Module root node for tree
     :return: List of parso.python.tree.PythonErrorLeaf nodes for every quote error found or None if none were found
     """
-    # TODO docstring and miss matched quotes
     leaf_error_nodes = utils.find_nodes_of_type(
         root_node, parso.python.tree.PythonErrorLeaf
     )
@@ -275,8 +275,28 @@ def check_quote_error(
         leaf
         for leaf in leaf_error_nodes
         if leaf.get_code().strip() == "'" or leaf.get_code().strip() == '"'
+        or leaf.get_code().strip() == "'''" or leaf.get_code().strip() == '"""'
     ]
     if len(leaf_error_nodes) > 0:
         return leaf_error_nodes
     else:
         return None
+
+
+def check_docstring_quote_error(
+    root_node: parso.python.tree.Module,
+) -> Optional[parso.python.tree.PythonErrorLeaf]:
+
+    double_pattern = re.compile(r"(\"{3}).*(\"{2}|\")")
+    single_pattern = re.compile(r"('{3}).*('{2}|')")
+
+    leaf_error_nodes = utils.find_nodes_of_type(
+        root_node, parso.python.tree.PythonErrorLeaf
+    )
+
+    for leaf in leaf_error_nodes:
+        code = leaf.get_code().strip().replace('\n', '')
+        code = code.replace('\t', '')
+        if double_pattern.match(code) or single_pattern.match(code):
+            return leaf
+    return None

@@ -14,7 +14,7 @@ from error_explainer.checks import (
     check_missing_colon,
     check_invalid_assignment_expr,
     BracketErrorType,
-)
+    check_docstring_quote_error)
 from error_explainer.messages import get_formatted_message
 from error_explainer.search_utils import (
     get_line_location_start,
@@ -92,17 +92,47 @@ def list_checks() -> List[str]:
 
 
 @add_check
+def docstring_error_check(filename: str) -> NoReturn:
+    root_node = get_root_node(filename)
+    result = check_docstring_quote_error(root_node)
+    if result is not None:
+        add_message(
+            "missing_docstring_quotes",
+            line_start=get_line_location_start(result),
+        )
+
+
+@add_check
 def quote_errors_check(filename: str) -> NoReturn:
     root_node = get_root_node(filename)
     results = check_quote_error(root_node)
     if results is not None:
-        for res in results:
+        if len(results) == 2 \
+                and any(leaf for leaf in results if leaf.get_code().strip() == "'") \
+                and any(leaf for leaf in results if leaf.get_code().strip() == '"'):
+            # If there are 2 PythonErrorLeaf nodes and they are of different quote types
+            # then this is probably a miss match error
             add_message(
-                "invalid_quotes",
-                quote=res.get_code().strip(),
-                line_start=get_line_location_start(res),
-                pos=get_location_on_line(res),
+                "miss_matched_quotes",
+                line_start=get_line_location_start(results[0]),
+                line_end=get_line_location_end(results[1])
             )
+        else:
+            for res in results:
+                if len(res.get_code().strip()) == 3:
+                    add_message(
+                        "invalid_quotes_triple",
+                        quote=res.get_code().strip(),
+                        line_start=get_line_location_start(res),
+                        pos=get_location_on_line(res),
+                    )
+                else:
+                    add_message(
+                        "invalid_quotes",
+                        quote=res.get_code().strip(),
+                        line_start=get_line_location_start(res),
+                        pos=get_location_on_line(res),
+                    )
 
 
 @add_check
