@@ -35,7 +35,7 @@ _messages = {
     "Curly brackets are used for map definitions and f-string templates.\n"
     "Square brackets are used for list definitions as well as getting elements "
     "from a collection or string.\n",
-    "invalid_function_name": "It looks like there is an Invalid function name on line {line_end}.\n"
+    "invalid_function_name": "It looks like there is an invalid function name on line {line_end}.\n"
     '"{invalid_name}" can not be used as a function name, because it does not match the '
     "proper naming scheme or is a reserved keyword in Python.",
     "invalid_function_name.assign_to_def": 'It looks like you tried to assign a value to the keyword "def" '
@@ -59,6 +59,8 @@ _messages = {
     "and ending on line {line_end}\n"
     "Assignments should be in the format of variable_name,variable_name,... = expression",
     "invalid_quotes": "There is a missing {quote} that should match the one on line {line_start} at position {pos}.",
+    "invalid_function_bracket": 'There is a bracket right after def on line {line_end}. \n'
+                                '"def" should be followed by the name of the function.'
 }
 
 

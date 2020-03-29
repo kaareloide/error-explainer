@@ -35,6 +35,13 @@ class DefTest(unittest.TestCase):
         )
         run_test_scenario(self, path, 1, expected_message)
 
+    def test_keyword_as_arg_name(self):
+        path = "def_samples/no_name_or_args_def_error3.py"
+        expected_message = get_formatted_message(
+            "invalid_function_bracket", line_end=3
+        )
+        run_test_scenario(self, path, 1, expected_message)
+
 
 if __name__ == "__main__":
     unittest.main()

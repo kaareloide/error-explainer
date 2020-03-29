@@ -139,11 +139,17 @@ def invalid_function_def_check(filename: str) -> NoReturn:
                     line_end=get_line_location_end(error),
                 )
             elif invalid_function_name_res is not None:
-                add_message(
-                    "invalid_function_name",
-                    line_end=get_line_location_end(error),
-                    invalid_name=invalid_function_name_res,
-                )
+                if invalid_function_name_res == "(":
+                    add_message(
+                        "invalid_function_bracket",
+                        line_end=get_line_location_end(error),
+                    )
+                else:
+                    add_message(
+                        "invalid_function_name",
+                        line_end=get_line_location_end(error),
+                        invalid_name=invalid_function_name_res,
+                    )
             else:
                 missing_function_parts_res = check_missing_function_def_parts(
                     error_line
