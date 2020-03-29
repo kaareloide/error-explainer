@@ -1,7 +1,5 @@
-import ast
 import unittest
 
-from error_explainer import utils
 from test.test_utils import run_test_scenario
 from error_explainer.messages import get_formatted_message
 
@@ -41,7 +39,6 @@ class IndentationTest(unittest.TestCase):
 
     def test_start_of_indentation_at_eof(self):
         path = "indentation_samples/start_of_indentation_at_eof_error.py"
-        ast.parse(utils.read_file(path))
         expected_message = get_formatted_message(
             "invalid_indentation.3", line=5, error_line="else:"
         )

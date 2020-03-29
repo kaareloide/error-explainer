@@ -14,7 +14,7 @@ from error_explainer.checks import (
     check_missing_colon,
     check_invalid_assignment_expr,
     BracketErrorType,
-    check_docstring_quote_error)
+    check_docstring_quote_error, check_invalid_indentation)
 from error_explainer.messages import get_formatted_message
 from error_explainer.search_utils import (
     get_line_location_start,
@@ -64,14 +64,14 @@ def run_checks(filename: str) -> List[str]:
     try:
         # check if code compiles
         ast.parse(read_file(filename))
-        # run force checks
-        for c in force_checks.keys():
-            force_checks.get(c)(filename)
-
     except Exception:
         # if not then there is a syntax error and regular checks need to be ran
         for c in checks.keys():
             checks.get(c)(filename)
+
+    # run force checks
+    for c in force_checks.keys():
+        force_checks.get(c)(filename)
 
     return messages
 
@@ -152,19 +152,21 @@ def indentation_errors_check(filename: str) -> NoReturn:
     found_errors = find_error_nodes(filename)
     if len(found_errors) == 0:
         # TODO needs a lot of work
-        pass
-        """
-        indent_check_result = check_invalid_indentation(path)
+
+        indent_check_result = check_invalid_indentation(filename)
         print(f"INDENT {indent_check_result}")
         if indent_check_result is not None:
             indent_error_line_num = indent_check_result[0]
             error_line = indent_check_result[1]
             last_start_of_block = indent_check_result[2]
             indent_error_type = indent_check_result[3]
-            self.add_message(indent_error_type, f"invalid_indentation.{indent_error_type.value}",
-                             line=indent_error_line_num, last_start_of_block=last_start_of_block,
-                             error_line=error_line)
-        """
+            add_message(
+                f"invalid_indentation.{indent_error_type.value}",
+                line=indent_error_line_num,
+                last_start_of_block=last_start_of_block,
+                error_line=error_line
+            )
+
 
 
 @add_check(False)
