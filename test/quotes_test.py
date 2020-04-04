@@ -67,6 +67,13 @@ class QuotesTest(unittest.TestCase):
         )
         run_test_scenario(self, path, 1, expected_message)
 
+    def test_some_missing_quotes_no_colon(self):
+        path = "quotes_samples/missing_quotes_no_colon_error.py"
+        expected_message = get_formatted_message(
+            "invalid_quotes", line_start=1, quote='"', pos=7
+        )
+        run_test_scenario(self, path, 1, expected_message)
+
     def test_some_missing_quote_docstring_before(self):
         # todo this gets detected as missing triple quotes
         # path = "quotes_samples/missing_some_quotes_before_docstring_error.py"

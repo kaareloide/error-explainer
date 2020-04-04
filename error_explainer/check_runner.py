@@ -1,8 +1,10 @@
 import ast
+from collections import defaultdict
 from typing import NoReturn, Any, List, Callable
 
 import parso
 
+from error_explainer.check import Check
 from error_explainer.checks import (
     check_quote_error,
     check_invalid_function_def,
@@ -31,24 +33,28 @@ from error_explainer.utils import (
     read_file,
 )
 
-checks = dict()
-force_checks = dict()
+checks = defaultdict(dict)
+force_checks = defaultdict(dict)
 messages = []
 
 
-def add_check(force: bool) -> Callable:
+def add_check(force: bool, level=99) -> Callable:
     """
      Decorator for adding a check to the list of checks to run when calling run_checks
+     :param level: checks are run in order of lowest to highest level, if any errors found on current level, then next
+     checks will not be ran
      :param force True/False if this should be a forced check, meaning it should be run even when the code compiles
     """
+    if not 0 <= level <= 99:
+        raise AttributeError("Level should be between 0 and 99")
 
     def dec(func):
         if type(force) != bool:
             raise AttributeError("Force parameter must be defined in the decorator")
         if force:
-            force_checks[func.__name__] = func
+            force_checks[level][func.__name__] = Check(level, func)
         else:
-            checks[func.__name__] = func
+            checks[level][func.__name__] = Check(level, func)
 
         def wrapper(**kwargs):
             return func(*kwargs)
@@ -56,6 +62,25 @@ def add_check(force: bool) -> Callable:
         return wrapper
 
     return dec
+
+
+def run_checks_map(checks_map: dict, filename: str, last_level: int) -> int:
+    """
+    Run all checks in a map of checks by levels until an error is found on the level. This is mostly a helper function
+    to deal with multiple check maps and multiple levels of checks. Using this we can get the last level from a previous
+    map and run checks in current map until the same level or until new error found.
+    :param checks_map: map of checks
+    :param filename: path to file to check
+    :param last_level: last level until which checks are ran
+    :return: first level where errors were found
+    """
+    global messages
+    starting_messages_count = len(messages)
+    for level in sorted(checks_map.keys()):
+        for c in checks_map[level]:
+            checks_map[level].get(c).run(filename)
+        if level == last_level or len(messages) > starting_messages_count:
+            return level
 
 
 def run_checks(filename: str) -> List[str]:
@@ -66,17 +91,16 @@ def run_checks(filename: str) -> List[str]:
     """
     global messages
     messages = []
+    last_level = 99
     try:
         # check if code compiles
         ast.parse(read_file(filename))
     except Exception:
         # if not then there is a syntax error and regular checks need to be ran
-        for c in checks.keys():
-            checks.get(c)(filename)
+        last_level = run_checks_map(checks, filename, last_level)
 
     # run force checks
-    for c in force_checks.keys():
-        force_checks.get(c)(filename)
+    run_checks_map(force_checks, filename, last_level)
 
     return messages
 
@@ -108,7 +132,7 @@ def list_checks() -> List[str]:
     return list(checks.keys()) + list(force_checks.keys())
 
 
-@add_check(False)
+@add_check(False, 0)
 def docstring_error_check(filename: str) -> NoReturn:
     root_node = get_root_node(filename)
     result = check_docstring_quote_error(root_node)
@@ -118,7 +142,7 @@ def docstring_error_check(filename: str) -> NoReturn:
         )
 
 
-@add_check(False)
+@add_check(False, 0)
 def quote_errors_check(filename: str) -> NoReturn:
     root_node = get_root_node(filename)
     results = check_quote_error(root_node)
@@ -212,7 +236,7 @@ def invalid_function_def_check(filename: str) -> NoReturn:
                     )
 
 
-@add_check(False)
+@add_check(False, 1)
 def missing_brackets_check(filename: str) -> NoReturn:
     found_errors = find_error_nodes(filename)
     for error in found_errors:
@@ -265,7 +289,7 @@ def missing_brackets_check(filename: str) -> NoReturn:
                     )
 
 
-@add_check(False)
+@add_check(False, 1)
 def miss_matched_bracket_check(filename: str) -> NoReturn:
     found_errors = find_error_nodes(filename)
     for error in found_errors:
@@ -293,7 +317,7 @@ def miss_matched_bracket_check(filename: str) -> NoReturn:
                 )
 
 
-@add_check(False)
+@add_check(False, 1)
 def missing_brackets_print_check(filename: str) -> NoReturn:
     found_errors = find_error_nodes(filename)
     for error in found_errors:

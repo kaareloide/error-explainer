@@ -21,8 +21,13 @@ Messages will be a list of strings containing the generated messages.
 
 ### Add a new custom check
 Custom checks can be added to the list of checks ran while calling run_checks().
-To add a new check use `@add_check(force: bool)` annotation. Force parameter defines if the
+To add a new check use `@add_check(force: bool, level=99)` annotation. Force parameter defines if the
 check is ran only if the code does not compile (False) or always (True)
+Checks are also run in multiple levels from 0 to 99.
+Current layers are the following:
+* 0 - docstring errors, quote errors
+* 1 - miss match bracket errors, missing bracket errors, python 2 style print usage error
+* 99 - everything else
 ```python
 from error_explainer.check_runner import add_check, add_message
 
