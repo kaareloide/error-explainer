@@ -77,10 +77,16 @@ def run_checks_map(checks_map: dict, filename: str, last_level: int) -> int:
     global messages
     starting_messages_count = len(messages)
     for level in sorted(checks_map.keys()):
+        if level > last_level:
+            return level
+
         for c in checks_map[level]:
             checks_map[level].get(c).run(filename)
-        if level == last_level or len(messages) > starting_messages_count:
+
+        if len(messages) > starting_messages_count:
             return level
+
+    return 99
 
 
 def run_checks(filename: str) -> List[str]:
@@ -189,22 +195,20 @@ def quote_errors_check(filename: str) -> NoReturn:
 @add_check(True)
 def indentation_errors_check(filename: str) -> NoReturn:
     found_errors = find_error_nodes(filename)
-    if len(found_errors) == 0:
-        # TODO needs a lot of work
 
-        indent_check_result = check_invalid_indentation(filename)
-        print(f"INDENT {indent_check_result}")
-        if indent_check_result is not None:
-            indent_error_line_num = indent_check_result[0]
-            error_line = indent_check_result[1]
-            last_start_of_block = indent_check_result[2]
-            indent_error_type = indent_check_result[3]
-            add_message(
-                f"invalid_indentation.{indent_error_type.value}",
-                line=indent_error_line_num,
-                last_start_of_block=last_start_of_block,
-                error_line=error_line,
-            )
+    indent_check_result = check_invalid_indentation(filename)
+
+    if indent_check_result is not None:
+        indent_error_line_num = indent_check_result[0]
+        error_line = indent_check_result[1]
+        last_start_of_block = indent_check_result[2]
+        indent_error_type = indent_check_result[3]
+        add_message(
+            f"invalid_indentation.{indent_error_type.value}",
+            line=indent_error_line_num,
+            last_start_of_block=last_start_of_block,
+            error_line=error_line,
+        )
 
 
 @add_check(False, 2)

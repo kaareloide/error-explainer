@@ -10,8 +10,8 @@ class IndentationTest(unittest.TestCase):
         expected_message = get_formatted_message(
             "invalid_indentation.4",
             line=3,
-            error_line="pass\n",
-            last_start_of_block="if True:\n",
+            error_line="pass",
+            last_start_of_block="if True:",
         )
         run_test_scenario(self, path, 1, expected_message)
 
@@ -20,15 +20,15 @@ class IndentationTest(unittest.TestCase):
         expected_message = get_formatted_message(
             "invalid_indentation.1",
             line=4,
-            error_line="      pass\n",
-            last_start_of_block="if True:\n",
+            error_line="      pass",
+            last_start_of_block="if True:",
         )
         run_test_scenario(self, path, 1, expected_message)
 
     def test_no_matching_indent_level(self):
         path = "indentation_samples/no_matching_indent_level_error.py"
         expected_message = get_formatted_message(
-            "invalid_indentation.2", line=4, error_line="    pass\n"
+            "invalid_indentation.2", line=4, error_line="    pass"
         )
         run_test_scenario(self, path, 1, expected_message)
 

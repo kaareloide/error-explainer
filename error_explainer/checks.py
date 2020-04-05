@@ -148,7 +148,6 @@ def check_miss_matched_bracket_type(path: str) -> Optional[BracketErrorType]:
 
 
 def check_invalid_indentation(path: str) -> Tuple[int, str, str, IndentationErrorType]:
-    # TODO
     """
     Check if the file contains any indentation errors.
     :param path: Path to file
@@ -182,8 +181,8 @@ def check_invalid_indentation(path: str) -> Tuple[int, str, str, IndentationErro
         # Last Line starts new indentation block
         return (
             len(lines),
-            lines[len(lines) - 1],
-            lines[len(lines) - 1],
+            lines[len(lines) - 1].rstrip(),
+            lines[len(lines) - 1].rstrip(),
             IndentationErrorType.NEW_INDENT_AT_EOF,
         )
     for i, line in enumerate(lines):
@@ -202,8 +201,8 @@ def check_invalid_indentation(path: str) -> Tuple[int, str, str, IndentationErro
                         # If no new indent after start of block statement and is not comment line
                         return (
                             i + 1,
-                            next_non_comment_line,
-                            statement_lines[0],
+                            next_non_comment_line.rstrip(),
+                            statement_lines[0].rstrip(),
                             IndentationErrorType.NO_NEW_INDENT,
                         )
                     level_stack.insert(0, next_indentation_level)
@@ -211,8 +210,8 @@ def check_invalid_indentation(path: str) -> Tuple[int, str, str, IndentationErro
                     # New indentation started at the last line
                     return (
                         i + 1,
-                        line,
-                        statement_lines[0],
+                        line.rstrip(),
+                        statement_lines[0].rstrip(),
                         IndentationErrorType.NEW_INDENT_AT_EOF,
                     )
 
@@ -227,16 +226,16 @@ def check_invalid_indentation(path: str) -> Tuple[int, str, str, IndentationErro
                 # If that level was not in stack, then line does not match any outer indentation level
                 return (
                     i + 1,
-                    line,
-                    statement_lines[0],
+                    line.rstrip(),
+                    statement_lines[0].rstrip(),
                     IndentationErrorType.DOES_NOT_MATCH_OUTER,
                 )
         else:
             # Higher level of indentation without start of new block
             return (
                 i + 1,
-                line,
-                statement_lines[0],
+                line.rstrip(),
+                statement_lines[0].rstrip(),
                 IndentationErrorType.HIGHER_LEVEL_WITHOUT_START,
             )
 
