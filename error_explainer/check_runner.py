@@ -120,7 +120,16 @@ def remove_check(name: str) -> NoReturn:
     Remove a check function from the list of checks ran with run_checks()
     :param name: name of the check function to be removed
     """
-    if checks.pop(name, None) is None and force_checks.pop(name, None) is None:
+    removed = False
+    for key in checks.keys():
+        if not removed:
+            removed = checks[key].pop(name, None) is not None
+
+    for key in force_checks.keys():
+        if not removed:
+            removed = checks[key].pop(name, None) is not None
+
+    if not removed:
         raise KeyError(f"Check with the name {name} not found")
 
 
@@ -129,7 +138,7 @@ def list_checks() -> List[str]:
     List checks by name that will be ran with run_checks()
     :return: list check function names
     """
-    return list(checks.keys()) + list(force_checks.keys())
+    return [checks.get(key) for key in checks.keys()] + [force_checks.get(key) for key in force_checks.keys()]
 
 
 @add_check(False, 0)
@@ -198,7 +207,7 @@ def indentation_errors_check(filename: str) -> NoReturn:
             )
 
 
-@add_check(False)
+@add_check(False, 2)
 def invalid_function_def_check(filename: str) -> NoReturn:
     found_errors = find_error_nodes(filename)
     for error in found_errors:
@@ -327,38 +336,25 @@ def missing_brackets_print_check(filename: str) -> NoReturn:
             )
 
 
-@add_check(False)
+@add_check(False, 3)
 def missing_colon_check(filename: str) -> NoReturn:
-    def should_check_for_missing_colon(e: parso.python.tree.ErrorNode) -> bool:
-        """
-        Check for colon only when no bracket error or definition error is present
-        """
-        is_not_missing_brackets_error = sum(check_missing_brackets(e)) == 0
-        def_res = check_invalid_function_def(e)
-        is_not_def_error = def_res is None or not def_res
-        return (
-            is_not_missing_brackets_error
-            and is_not_def_error
-            and not check_print_missing_brackets(e)
-        )
-
+    # This check should be ran after bracket, quote and definition checks
     found_errors = find_error_nodes(filename)
     for error in found_errors:
-        if should_check_for_missing_colon(error):
-            res = check_missing_colon(error)
-            if res is not None:
+        res = check_missing_colon(error)
+        if res is not None:
                 add_message(
                     "missing_colon",
                     line_end=get_line_location_end(error),
                     statement=res,
-                )
+            )
 
 
-@add_check(False)
+@add_check(False, 3)
 def invalid_assignment_check(filename: str) -> NoReturn:
     root_node = get_root_node(filename)
     invalid_assignment_res = check_invalid_assignment_expr(root_node)
-    if invalid_assignment_res is not None and check_quote_error(root_node) is None:
+    if invalid_assignment_res is not None:
         for res in invalid_assignment_res:
             add_message(
                 "invalid_assignment",
