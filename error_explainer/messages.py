@@ -66,6 +66,8 @@ _messages = {
     "at position {pos}.",
     "missing_docstring_quotes": "There seem to be some missing quotes at the end of the docstring starting "
     "on line {line_start}",
+    "coma_instead_of_period": "It looks like you might have used a coma instead of a period while writing a fraction "
+    "on line {line_start}",
 }
 
 

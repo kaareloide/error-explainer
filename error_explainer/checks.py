@@ -258,6 +258,19 @@ def check_invalid_assignment_expr(
     return bad_exprs if len(bad_exprs) != 0 else None
 
 
+def check_coma_used_instead_of_period(
+    root_node: parso.python.tree.Module,
+) -> Optional[List[parso.python.tree.ExprStmt]]:
+    expr_nodes = utils.find_nodes_of_type(root_node, parso.python.tree.ExprStmt)
+    bad_exprs = []
+    for expr in expr_nodes:
+        code = expr.get_code().strip()
+        if utils.is_bad_coma_usage(code):
+            bad_exprs.append(expr)
+
+    return bad_exprs if len(bad_exprs) != 0 else None
+
+
 def check_quote_error(
     root_node: parso.python.tree.Module,
 ) -> Optional[List[parso.python.tree.PythonErrorLeaf]]:

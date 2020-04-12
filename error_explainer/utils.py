@@ -110,8 +110,7 @@ def is_only_comment_line(line: str) -> bool:
 
 def is_correct_assignment_signature(code: str) -> bool:
     """
-    Check if list of tokens matches the pattern of a correct assignment. First token should be of type NAME
-    and second token should be of type OP and the string should be "=".
+    Check if list of tokens matches the pattern of a correct assignment.
     :param code: line containing variable assignment
     :return: True/False
     """
@@ -131,6 +130,23 @@ def is_correct_assignment_signature(code: str) -> bool:
             )
     except ValueError:
         return False
+
+
+def is_bad_coma_usage(code: str) -> bool:
+    """
+    Check if left side of the ExprStatement only has 1 variable and the right side contains a coma
+    :param code:
+    :return:
+    """
+    should_be_var_names, other = code.split("=")
+    should_be_var_names = remove_irrelevant_tokens_in_var_names(
+        tokenize_line(should_be_var_names.strip())
+    )
+    if len(should_be_var_names) == 1:
+        return any(
+            token.type == tokenize.OP and token.string == ","
+            for token in tokenize_line(other)
+        )
 
 
 def remove_irrelevant_tokens_in_var_names(

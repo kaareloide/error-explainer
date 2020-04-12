@@ -18,6 +18,7 @@ from error_explainer.checks import (
     BracketErrorType,
     check_docstring_quote_error,
     check_invalid_indentation,
+    check_coma_used_instead_of_period,
 )
 from error_explainer.messages import get_formatted_message
 from error_explainer.search_utils import (
@@ -144,7 +145,18 @@ def list_checks() -> List[str]:
     List checks by name that will be ran with run_checks()
     :return: list check function names
     """
-    return [checks.get(key) for key in checks.keys()] + [force_checks.get(key) for key in force_checks.keys()]
+    return [checks.get(key) for key in checks.keys()] + [
+        force_checks.get(key) for key in force_checks.keys()
+    ]
+
+
+def remove_all_checks() -> NoReturn:
+    """
+    Removes all defined checks
+    """
+    global checks, force_checks
+    checks = defaultdict(dict)
+    force_checks = defaultdict(dict)
 
 
 @add_check(False, 0)
@@ -194,8 +206,6 @@ def quote_errors_check(filename: str) -> NoReturn:
 
 @add_check(True)
 def indentation_errors_check(filename: str) -> NoReturn:
-    found_errors = find_error_nodes(filename)
-
     indent_check_result = check_invalid_indentation(filename)
 
     if indent_check_result is not None:
@@ -347,10 +357,8 @@ def missing_colon_check(filename: str) -> NoReturn:
     for error in found_errors:
         res = check_missing_colon(error)
         if res is not None:
-                add_message(
-                    "missing_colon",
-                    line_end=get_line_location_end(error),
-                    statement=res,
+            add_message(
+                "missing_colon", line_end=get_line_location_end(error), statement=res,
             )
 
 
@@ -365,4 +373,15 @@ def invalid_assignment_check(filename: str) -> NoReturn:
                 statement=res.get_code().strip(),
                 line_start=get_line_location_start(res),
                 line_end=get_line_location_end(res),
+            )
+
+
+@add_check(True)
+def coma_instead_of_period_check(filename: str) -> NoReturn:
+    root_node = get_root_node(filename)
+    coma_check_res = check_coma_used_instead_of_period(root_node)
+    if coma_check_res is not None:
+        for res in coma_check_res:
+            add_message(
+                "coma_instead_of_period", line_start=get_line_location_start(res),
             )

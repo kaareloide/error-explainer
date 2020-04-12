@@ -27,7 +27,9 @@ Checks are also run in multiple levels from 0 to 99.
 Current layers are the following:
 * 0 - docstring errors, quote errors
 * 1 - miss match bracket errors, missing bracket errors, python 2 style print usage error
-* 99 - everything else
+* 2 - invalid function definition errors
+* 3 - missing colon errors, invalid assignment errors
+* 99 - indentation errors, coma used instead of a period in an assignment error
 ```python
 from error_explainer.check_runner import add_check, add_message
 

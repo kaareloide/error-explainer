@@ -64,6 +64,11 @@ class AssignmentTest(unittest.TestCase):
     def test_tuple_assignment(self):
         run_sanity_test(self, "assignment_samples/tuple_assign_correct.py")
 
+    def test_coma_instead_of_period(self):
+        path = "assignment_samples/coma_instead_of_period_error.py"
+        expected_message = get_formatted_message("coma_instead_of_period", line_start=1)
+        run_test_scenario(self, path, 1, expected_message)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -5,7 +5,7 @@ with open("README.md", "r") as rm:
 
 setuptools.setup(
     name="error-explainer",
-    version="0.4",
+    version="0.5",
     description="Custom messages for errors",
     long_description=long_description,
     long_description_content_type="text/markdown",
