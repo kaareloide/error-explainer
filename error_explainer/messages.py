@@ -49,7 +49,7 @@ _messages = {
     '"def" should be followed by the name of the function.',
     "invalid_indentation.1": 'There is an error in the indentation on line number {line} ("{error_line}"). '
     "The line has a higher level of indentation but a new matching indentation block "
-    'was newer started. Last start of an indentation block was "{last_start_of_block}".',
+    'was newer started.',
     "invalid_indentation.2": 'There is an error in the indentation on line number {line} ("{error_line}"). '
     "The indentation of the line does not match any outer level of indentation.",
     "invalid_indentation.3": 'There is an error in the indentation on line number {line} ("{error_line}"). '

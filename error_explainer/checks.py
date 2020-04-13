@@ -235,7 +235,7 @@ def check_invalid_indentation(path: str) -> Tuple[int, str, str, IndentationErro
             return (
                 i + 1,
                 line.rstrip(),
-                statement_lines[0].rstrip(),
+                "",
                 IndentationErrorType.HIGHER_LEVEL_WITHOUT_START,
             )
 
