@@ -2,8 +2,6 @@ import ast
 from collections import defaultdict
 from typing import NoReturn, Any, List, Callable
 
-import parso
-
 from error_explainer.check import Check
 from error_explainer.checks import (
     check_quote_error,
@@ -134,7 +132,7 @@ def remove_check(name: str) -> NoReturn:
 
     for key in force_checks.keys():
         if not removed:
-            removed = checks[key].pop(name, None) is not None
+            removed = force_checks[key].pop(name, None) is not None
 
     if not removed:
         raise KeyError(f"Check with the name {name} not found")

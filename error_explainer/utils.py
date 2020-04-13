@@ -138,6 +138,9 @@ def is_bad_coma_usage(code: str) -> bool:
     :param code:
     :return:
     """
+    parts = code.split("=")
+    if len(parts) != 2:
+        return False
     should_be_var_names, other = code.split("=")
     should_be_var_names = remove_irrelevant_tokens_in_var_names(
         tokenize_line(should_be_var_names.strip())
