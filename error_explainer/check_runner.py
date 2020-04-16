@@ -226,35 +226,38 @@ def invalid_function_def_check(filename: str) -> NoReturn:
         if check_invalid_function_def(error):
             error_line = get_lines(filename, [get_line_location_end(error) - 1])[0]
             tokens = tokenize_line(error_line)
-            invalid_function_name_res = check_invalid_function_name(tokens)
-            if invalid_function_name_res == "=":
-                add_message(
-                    "invalid_function_name.assign_to_def",
-                    line_end=get_line_location_end(error),
-                )
-            elif invalid_function_name_res is not None:
-                if invalid_function_name_res == "(":
+            if tokens[0].string == "def":
+                # eliminate false positives because parso sometimes detects errors at wrong locations.
+                invalid_function_name_res = check_invalid_function_name(tokens)
+                if invalid_function_name_res == "=":
                     add_message(
-                        "invalid_function_bracket",
+                        "invalid_function_name.assign_to_def",
                         line_end=get_line_location_end(error),
                     )
+                elif invalid_function_name_res is not None:
+                    if invalid_function_name_res == "(":
+                        print(tokens)
+                        add_message(
+                            "invalid_function_bracket",
+                            line_end=get_line_location_end(error),
+                        )
+                    else:
+                        add_message(
+                            "invalid_function_name",
+                            line_end=get_line_location_end(error),
+                            invalid_name=invalid_function_name_res,
+                        )
                 else:
-                    add_message(
-                        "invalid_function_name",
-                        line_end=get_line_location_end(error),
-                        invalid_name=invalid_function_name_res,
+                    missing_function_parts_res = check_missing_function_def_parts(
+                        error_line
                     )
-            else:
-                missing_function_parts_res = check_missing_function_def_parts(
-                    error_line
-                )
-                if missing_function_parts_res is not None:
-                    add_message(
-                        "missing_function_parts",
-                        line_start=get_line_location_start(error),
-                        line_end=get_line_location_end(error),
-                        invalid_def=missing_function_parts_res,
-                    )
+                    if missing_function_parts_res is not None:
+                        add_message(
+                            "missing_function_parts",
+                            line_start=get_line_location_start(error),
+                            line_end=get_line_location_end(error),
+                            invalid_def=missing_function_parts_res,
+                        )
 
 
 @add_check(False, 1)

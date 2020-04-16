@@ -181,6 +181,18 @@ def remove_irrelevant_tokens_in_var_names(
         and token.string != ","
         and token.string != "."
     ]
+
+    if any(token.string == "[" for token in striped):
+        # deal with list and dicts
+        striped = [
+            token
+            for token in striped
+            if token.type != tokenize.NUMBER
+               and token.string != "["
+               and token.string != "]"
+               and token.string != ":"
+        ]
+
     # remove last OP type token for the usage of "+=" etc
     if striped[-1].type == tokenize.OP:
         striped.remove(striped[-1])
