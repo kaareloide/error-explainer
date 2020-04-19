@@ -9,9 +9,9 @@ _messages = {
     "beginning on line {line_start} and ending on line {line_end}.",
     "missing_brackets.square.opening": 'It looks like there are missing opening square bracket(s) "[" ({count}) '
     "beginning on line {line_start} and ending on line {line_end}.",
-    "missing_brackets.curly.closing": 'It looks like there are missing closing curly bracket(s) "}" ({count}) '
+    "missing_brackets.curly.closing": 'It looks like there are missing closing curly bracket(s) "}}" ({count}) '
     "beginning on line {line_start} and ending on line {line_end}.",
-    "missing_brackets.curly.opening": 'It looks like there are missing opening curly bracket(s) "{" ({count}) '
+    "missing_brackets.curly.opening": 'It looks like there are missing opening curly bracket(s) "{{" ({count}) '
     "beginning on line {line_start} and ending on line {line_end}.",
     "missing_brackets.print": "It looks like you forgot the brackets after a print call on line {line_start},\n"
     " print is a function and should be followed by a set of brackets"
@@ -49,7 +49,7 @@ _messages = {
     '"def" should be followed by the name of the function.',
     "invalid_indentation.1": 'There is an error in the indentation on line number {line} ("{error_line}"). '
     "The line has a higher level of indentation but a new matching indentation block "
-    'was newer started.',
+    "was newer started.",
     "invalid_indentation.2": 'There is an error in the indentation on line number {line} ("{error_line}"). '
     "The indentation of the line does not match any outer level of indentation.",
     "invalid_indentation.3": 'There is an error in the indentation on line number {line} ("{error_line}"). '
