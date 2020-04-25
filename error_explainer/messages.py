@@ -1,73 +1,145 @@
 from typing import Any, NoReturn
 
 _messages = {
-    "missing_brackets.normal.closing": 'It looks like there are missing closing bracket(s) ")" ({count}) '
+    "missing_brackets.normal.closing.m":
+        'It looks like there are {count} missing closing bracket(s) ")" '
+        'beginning on line {line_start} and ending on line {line_end}.',
+
+    "missing_brackets.normal.opening.m":
+        'It looks like there are {count} missing opening bracket(s) "(" '
+        'beginning on line {line_start} and ending on line {line_end}.',
+
+    "missing_brackets.square.closing.m":
+        'It looks like there are {count} missing closing square bracket(s) "]" '
     "beginning on line {line_start} and ending on line {line_end}.",
-    "missing_brackets.normal.opening": 'It looks like there are missing opening bracket(s) "(" ({count}) '
-    "beginning on line {line_start} and ending on line {line_end}.",
-    "missing_brackets.square.closing": 'It looks like there are missing closing square bracket(s) "]" ({count}) '
-    "beginning on line {line_start} and ending on line {line_end}.",
-    "missing_brackets.square.opening": 'It looks like there are missing opening square bracket(s) "[" ({count}) '
-    "beginning on line {line_start} and ending on line {line_end}.",
-    "missing_brackets.curly.closing": 'It looks like there are missing closing curly bracket(s) "}}" ({count}) '
-    "beginning on line {line_start} and ending on line {line_end}.",
-    "missing_brackets.curly.opening": 'It looks like there are missing opening curly bracket(s) "{{" ({count}) '
-    "beginning on line {line_start} and ending on line {line_end}.",
-    "missing_brackets.print": "It looks like you forgot the brackets after a print call on line {line_start},\n"
-    " print is a function and should be followed by a set of brackets"
-    ' as follows: print("foo")',
-    "missing_colon": "It looks like you forgot to add a colon after a compound statement on line {line_end}.\n"
-    " {statement} statements start a new indented compound statement block"
-    " and should be followed by a colon.",
-    "miss_matched_brackets.square.normal": "It looks like there is a mix of square and regular brackets used "
-    "beginning on line {line_start} and ending on line {line_end}\n"
-    "Square brackets are used for list definitions as well as getting elements "
-    "from a collection or string.\n"
-    "Regular brackets are used for tuple definitions function definitions "
-    "and defining the order of operations in an expression.",
-    "miss_matched_brackets.curly.normal": "It looks like there is a mix of curly and regular brackets used beginning"
-    " on line {line_start} and ending on line {line_end}\n"
-    "Curly brackets are used for map definitions and f-string templates.\n"
-    "Regular brackets are used for tuple definitions function definitions"
-    " and defining the order of operations in an expression.",
-    "miss_matched_brackets.curly.square": "It looks like there is a mix of curly and square brackets used beginning"
-    " on line {line_start} and ending on line {line_end}\n"
-    "Curly brackets are used for map definitions and f-string templates.\n"
-    "Square brackets are used for list definitions as well as getting elements "
-    "from a collection or string.\n",
-    "invalid_function_name": "It looks like there is an invalid function name on line {line_end}.\n"
-    '"{invalid_name}" can not be used as a function name, because it does not match the '
-    "proper naming scheme or is a reserved keyword in Python.",
-    "invalid_function_name.assign_to_def": 'It looks like you tried to assign a value to the keyword "def" '
-    "on line {line_end}.\n "
-    '"def" is a reserved keyword used for function definitions. ',
-    "missing_function_parts": 'It looks like there are missing parts in the function definition "{invalid_def}"'
-    " beginning on line {line_start} and ending on line {line_end}\n"
-    "Function definition should be in the form of:\n "
-    '"def function_name(argument1, argument2, ...):"',
-    "invalid_function_bracket": "There is a bracket right after def on line {line_end}. \n"
-    '"def" should be followed by the name of the function.',
-    "invalid_indentation.1": 'There is an error in the indentation on line number {line} ("{error_line}"). '
-    "The line has a higher level of indentation but a new matching indentation block "
-    "was newer started.",
-    "invalid_indentation.2": 'There is an error in the indentation on line number {line} ("{error_line}"). '
-    "The indentation of the line does not match any outer level of indentation.",
-    "invalid_indentation.3": 'There is an error in the indentation on line number {line} ("{error_line}"). '
-    "The line starts a new indentation block at the end of the file.",
-    "invalid_indentation.4": 'There is an error in the indentation on line number {line} ("{error_line}"). '
-    "No new indentation started after a statement, "
-    'that should start a new block ("{last_start_of_block}").',
-    "invalid_assignment": 'Invalid assignment "{statement}" beginning on line {line_start} '
-    "and ending on line {line_end}\n"
-    "Assignments should be in the format of variable_name,variable_name,... = expression",
-    "invalid_quotes": "There is a missing {quote} that should match the one on line {line_start} at position {pos}.",
-    "miss_matched_quotes": "There is a mix of single and double quotes used from line {line_start} to line {line_end}",
-    "invalid_quotes_triple": "There are missing triple quotes {quote} that should match the ones on line {line_start} "
-    "at position {pos}.",
-    "missing_docstring_quotes": "There seem to be some missing quotes at the end of the docstring starting "
-    "on line {line_start}",
-    "coma_instead_of_period": "It looks like you might have used a coma instead of a period while writing a fraction "
-    "on line {line_start}",
+
+    "missing_brackets.square.opening.m":
+        'It looks like there are {count} missing opening square bracket(s) "[" '
+        'beginning on line {line_start} and ending on line {line_end}.',
+
+    "missing_brackets.curly.closing.m":
+        'It looks like there are {count} missing closing curly bracket(s) "}}" '
+        'beginning on line {line_start} and ending on line {line_end}.',
+
+    "missing_brackets.curly.opening.m":
+        'It looks like there are {count} missing opening curly bracket(s) "{{" '
+        'beginning on line {line_start} and ending on line {line_end}.',
+
+
+
+    "missing_brackets.normal.closing":
+        'It looks like there are {count} missing closing bracket(s) ")" on line {line_start}',
+
+    "missing_brackets.normal.opening":
+        'It looks like there are {count} missing opening bracket(s) "(" on line {line_start} ',
+
+    "missing_brackets.square.closing":
+        'It looks like there are {count} missing closing square bracket(s) "]" on line {line_start}',
+
+    "missing_brackets.square.opening":
+        'It looks like there are {count} missing opening square bracket(s) "[" on line {line_start}',
+
+    "missing_brackets.curly.closing":
+        'It looks like there are {count} missing closing curly bracket(s) "}}" on line {line_start}',
+
+    "missing_brackets.curly.opening":
+        'It looks like there are {count} missing opening curly bracket(s) "{{" on line {line_start}',
+
+
+    "missing_brackets.print":
+        'It looks like you forgot the brackets after a print statement {line_start}.\n'
+        'Print is a function and should be followed by a set of brackets like so: print("foo").',
+
+
+    "miss_matched_brackets.square.normal":
+        "It looks like there is a mix of square and regular brackets used "
+        "beginning on line {line_start} and ending on line {line_end}.\n"
+        "Square brackets are used for list definitions as well as getting elements "
+        "from a collection or string.\n"
+        "Regular brackets are used for tuple definitions function definitions "
+        "and defining the order of operations in an expression.",
+
+    "miss_matched_brackets.curly.normal":
+        "It looks like there is a mix of curly and regular brackets used beginning "
+        "on line {line_start} and ending on line {line_end}.\n"
+        "Curly brackets are used for map definitions and f-string templates.\n"
+        "Regular brackets are used for tuple definitions function definitions"
+        " and defining the order of operations in an expression.",
+
+    "miss_matched_brackets.curly.square":
+        "It looks like there is a mix of curly and square brackets used beginning"
+        " on line {line_start} and ending on line {line_end}.\n"
+        "Curly brackets are used for map definitions and f-string templates.\n"
+        "Square brackets are used for list definitions as well as getting elements "
+        "from a collection or string.\n",
+
+
+
+
+    "missing_colon":
+        'It looks like you forgot to add a colon after a statement that should be followed by one on line {line_end}.\n'
+        '{statement} statements start a new indented code block and should be followed by a colon.',
+
+
+
+    "invalid_function_name":
+        'It looks like there is an invalid function name on line {line_end}.\n'
+        '"{invalid_name}" can not be used as a function name, because it does not match the '
+        "proper naming scheme or is a reserved keyword in Python.",
+
+    "invalid_function_name.assign_to_def":
+        'It looks like you tried to assign a value to the keyword "def" on line {line_end}.\n'
+        '"def" is a reserved keyword used for function definitions and can not be used as a variable name.',
+
+    "missing_function_parts":
+        'It looks like there are missing parts in the function definition "{invalid_def}" on line {line_start}\n'
+        'Function definition should be in the form of: "def function_name(argument1, argument2, ...):"',
+
+    "invalid_function_bracket":
+        "There is a bracket right after def on line {line_end}.\n"
+        '"def" should be followed by a function name. Did you forget to add one?',
+
+
+
+    "invalid_indentation.1":
+        'There is an error in the indentation on line number {line} ("{error_line}").\n'
+        'The line has a higher level of indentation but a new matching indentation block was newer started.',
+
+    "invalid_indentation.2":
+        'There is an error in the indentation on line number {line} ("{error_line}").\n'
+        'The indentation of the line does not match any outer level of indentation.',
+
+    "invalid_indentation.3":
+        'There is an error in the indentation on line number {line} ("{error_line}").\n'
+        'The line starts a new indentation block at the end of the file.',
+
+    "invalid_indentation.4":
+        'There is an error in the indentation on line number {line} ("{error_line}").\n'
+        'No new indentation started after a statement, that should start a new block ("{last_start_of_block}").',
+
+
+
+    "invalid_assignment":
+        'Invalid assignment "{statement}" on line {line_start}\n'
+        'Assignments should be in the format of variable_name,variable_name,... = expression.',
+
+
+
+    "invalid_quotes":
+        "There is a missing quote of type: {quote} that should close the string started on line {line_start}.",
+
+    "miss_matched_quotes":
+        "There is a mix of single and double quotes used for a string "
+        "starting from line {line_start} to line {line_end}.",
+
+    "invalid_quotes_triple":
+        "There are missing triple quotes of type {quote} that should match the ones on line {line_start}.",
+
+    "missing_docstring_quotes":
+        "There seem to be missing quotes at the end of the docstring starting on line {line_start}",
+
+    "coma_instead_of_period":
+        "It looks like you might have used a coma instead of a period while writing a fraction on line {line_start}",
 }
 
 

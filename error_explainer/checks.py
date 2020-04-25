@@ -200,7 +200,7 @@ def check_invalid_indentation(path: str) -> Tuple[int, str, str, IndentationErro
                     if next_indentation_level <= level_stack[0]:
                         # If no new indent after start of block statement and is not comment line
                         return (
-                            i + 1,
+                            i,
                             next_non_comment_line.rstrip(),
                             statement_lines[0].rstrip(),
                             IndentationErrorType.NO_NEW_INDENT,
