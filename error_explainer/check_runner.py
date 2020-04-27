@@ -268,48 +268,88 @@ def missing_brackets_check(filename: str) -> NoReturn:
         if normal_brackets + square_brackets + curly_brackets != 0:
             # If there are bracket errors check for miss matched brackets
             if check_miss_matched_bracket_type(filename) is None:
-                if normal_brackets < 0:
-                    add_message(
-                        "missing_brackets.normal.opening",
-                        count=abs(normal_brackets),
-                        line_start=get_line_location_start(error),
-                        line_end=get_line_location_end(error),
-                    )
-                elif normal_brackets > 0:
-                    add_message(
-                        "missing_brackets.normal.closing",
-                        count=abs(normal_brackets),
-                        line_start=get_line_location_start(error),
-                        line_end=get_line_location_end(error),
-                    )
-                elif square_brackets < 0:
-                    add_message(
-                        "missing_brackets.square.opening",
-                        count=abs(square_brackets),
-                        line_start=get_line_location_start(error),
-                        line_end=get_line_location_end(error),
-                    )
-                elif square_brackets > 0:
-                    add_message(
-                        "missing_brackets.square.closing",
-                        count=abs(square_brackets),
-                        line_start=get_line_location_start(error),
-                        line_end=get_line_location_end(error),
-                    )
-                elif curly_brackets < 0:
-                    add_message(
-                        "missing_brackets.curly.opening",
-                        count=abs(curly_brackets),
-                        line_start=get_line_location_start(error),
-                        line_end=get_line_location_end(error),
-                    )
-                elif curly_brackets > 0:
-                    add_message(
-                        "missing_brackets.curly.closing",
-                        count=abs(curly_brackets),
-                        line_start=get_line_location_start(error),
-                        line_end=get_line_location_end(error),
-                    )
+                start = get_line_location_start(error)
+                end = get_line_location_end(error)
+                if start == end:
+                    if normal_brackets < 0:
+                        add_message(
+                            "missing_brackets.normal.opening",
+                            count=abs(normal_brackets),
+                            line_start=get_line_location_start(error),
+                        )
+                    elif normal_brackets > 0:
+                        add_message(
+                            "missing_brackets.normal.closing",
+                            count=abs(normal_brackets),
+                            line_start=get_line_location_start(error),
+                        )
+                    elif square_brackets < 0:
+                        add_message(
+                            "missing_brackets.square.opening",
+                            count=abs(square_brackets),
+                            line_start=get_line_location_start(error),
+                        )
+                    elif square_brackets > 0:
+                        add_message(
+                            "missing_brackets.square.closing",
+                            count=abs(square_brackets),
+                            line_start=get_line_location_start(error),
+                        )
+                    elif curly_brackets < 0:
+                        add_message(
+                            "missing_brackets.curly.opening",
+                            count=abs(curly_brackets),
+                            line_start=get_line_location_start(error),
+                        )
+                    elif curly_brackets > 0:
+                        add_message(
+                            "missing_brackets.curly.closing",
+                            count=abs(curly_brackets),
+                            line_start=get_line_location_start(error),
+                        )
+                else:
+                    if normal_brackets < 0:
+                        add_message(
+                            "missing_brackets.normal.opening.m",
+                            count=abs(normal_brackets),
+                            line_start=get_line_location_start(error),
+                            line_end=get_line_location_end(error),
+                        )
+                    elif normal_brackets > 0:
+                        add_message(
+                            "missing_brackets.normal.closing.m",
+                            count=abs(normal_brackets),
+                            line_start=get_line_location_start(error),
+                            line_end=get_line_location_end(error),
+                        )
+                    elif square_brackets < 0:
+                        add_message(
+                            "missing_brackets.square.opening.m",
+                            count=abs(square_brackets),
+                            line_start=get_line_location_start(error),
+                            line_end=get_line_location_end(error),
+                        )
+                    elif square_brackets > 0:
+                        add_message(
+                            "missing_brackets.square.closing.m",
+                            count=abs(square_brackets),
+                            line_start=get_line_location_start(error),
+                            line_end=get_line_location_end(error),
+                        )
+                    elif curly_brackets < 0:
+                        add_message(
+                            "missing_brackets.curly.opening.m",
+                            count=abs(curly_brackets),
+                            line_start=get_line_location_start(error),
+                            line_end=get_line_location_end(error),
+                        )
+                    elif curly_brackets > 0:
+                        add_message(
+                            "missing_brackets.curly.closing.m",
+                            count=abs(curly_brackets),
+                            line_start=get_line_location_start(error),
+                            line_end=get_line_location_end(error),
+                        )
 
 
 @add_check(False, 1)

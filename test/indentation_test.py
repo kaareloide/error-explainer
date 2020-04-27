@@ -9,7 +9,7 @@ class IndentationTest(unittest.TestCase):
         path = "indentation_samples/no_new_indentation_error.py"
         expected_message = get_formatted_message(
             "invalid_indentation.4",
-            line=3,
+            line=4,
             error_line="pass",
             last_start_of_block="if True:",
         )

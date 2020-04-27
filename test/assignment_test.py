@@ -26,21 +26,21 @@ class AssignmentTest(unittest.TestCase):
         run_test_scenario(self, path, 1, expected_message)
 
     def test_assignment_to_variable_1(self):
-        path = "assignment_samples/assignment_to_variable_error_1.py"
+        path = "assignment_samples/assignment_to_constant_error_1.py"
         expected_message = get_formatted_message(
             "invalid_assignment", statement='"abc" = 1', line_start=1, line_end=1
         )
         run_test_scenario(self, path, 1, expected_message)
 
     def test_assignment_to_variable_2(self):
-        path = "assignment_samples/assignment_to_variable_error_2.py"
+        path = "assignment_samples/assignment_to_constant_error_2.py"
         expected_message = get_formatted_message(
             "invalid_assignment", statement="3 = 1", line_start=1, line_end=1
         )
         run_test_scenario(self, path, 1, expected_message)
 
     def test_assignment_to_variable_3(self):
-        path = "assignment_samples/assignment_to_variable_error_3.py"
+        path = "assignment_samples/assignment_to_constant_error_3.py"
         expected_message = get_formatted_message(
             "invalid_assignment", statement="True = 1", line_start=1, line_end=1
         )

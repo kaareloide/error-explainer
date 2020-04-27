@@ -9,7 +9,7 @@ class BracketsTest(unittest.TestCase):
     def test_missing_bracket_after(self):
         path = "brackets_samples/missing_bracket_after_error.py"
         expected_message = get_formatted_message(
-            "missing_brackets.normal.closing", count=1, line_start=2, line_end=3
+            "missing_brackets.normal.closing.m", count=1, line_start=2, line_end=3
         )
         run_test_scenario(self, path, 1, expected_message)
 
@@ -42,7 +42,7 @@ class BracketsTest(unittest.TestCase):
     def test_missing_square_bracket_after2(self):
         path = "brackets_samples/missing_square_bracket_after2_error.py"
         expected_message = get_formatted_message(
-            "missing_brackets.square.closing", count=1, line_start=5, line_end=7
+            "missing_brackets.square.closing.m", count=1, line_start=5, line_end=7
         )
         run_test_scenario(self, path, 1, expected_message)
 
