@@ -39,10 +39,10 @@ class QuotesTest(unittest.TestCase):
         )
         run_test_scenario(self, path, 1, expected_message)
 
-    def test_miss_matched_quotes(self):
-        path = "quotes_samples/miss_matched_quotes_error.py"
+    def test_mismatched_quotes(self):
+        path = "quotes_samples/mismatched_quotes_error.py"
         expected_message = get_formatted_message(
-            "miss_matched_quotes", line_start=1, line_end=3
+            "mismatched_quotes", line_start=1, line_end=3
         )
         run_test_scenario(self, path, 1, expected_message)
 

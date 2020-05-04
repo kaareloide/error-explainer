@@ -9,7 +9,7 @@ from error_explainer.checks import (
     check_invalid_function_name,
     check_missing_function_def_parts,
     check_missing_brackets,
-    check_miss_matched_bracket_type,
+    check_mismatched_bracket_type,
     check_print_missing_brackets,
     check_missing_colon,
     check_invalid_assignment_expr,
@@ -179,7 +179,7 @@ def quote_errors_check(filename: str) -> NoReturn:
             # If there are 2 PythonErrorLeaf nodes and they are of different quote types
             # then this is probably a miss match error
             add_message(
-                "miss_matched_quotes",
+                "mismatched_quotes",
                 line_start=get_line_location_start(results[0]),
                 line_end=get_line_location_end(results[1]),
             )
@@ -267,7 +267,7 @@ def missing_brackets_check(filename: str) -> NoReturn:
 
         if normal_brackets + square_brackets + curly_brackets != 0:
             # If there are bracket errors check for miss matched brackets
-            if check_miss_matched_bracket_type(filename) is None:
+            if check_mismatched_bracket_type(filename) is None:
                 start = get_line_location_start(error)
                 end = get_line_location_end(error)
                 if start == end:
@@ -353,28 +353,28 @@ def missing_brackets_check(filename: str) -> NoReturn:
 
 
 @add_check(False, 1)
-def miss_matched_bracket_check(filename: str) -> NoReturn:
+def mismatched_bracket_check(filename: str) -> NoReturn:
     found_errors = find_error_nodes(filename)
     for error in found_errors:
         normal_brackets, square_brackets, curly_brackets = check_missing_brackets(error)
 
         if normal_brackets + square_brackets + curly_brackets != 0:
-            miss_matched_bracket_type_res = check_miss_matched_bracket_type(filename)
-            if miss_matched_bracket_type_res == BracketErrorType.NORMAL_SQUARE:
+            mismatched_bracket_type_res = check_mismatched_bracket_type(filename)
+            if mismatched_bracket_type_res == BracketErrorType.NORMAL_SQUARE:
                 add_message(
-                    "miss_matched_brackets.square.normal",
+                    "mismatched_brackets.square.normal",
                     line_start=get_line_location_start(error),
                     line_end=get_line_location_end(error),
                 )
-            elif miss_matched_bracket_type_res == BracketErrorType.NORMAL_CURLY:
+            elif mismatched_bracket_type_res == BracketErrorType.NORMAL_CURLY:
                 add_message(
-                    "miss_matched_brackets.curly.normal",
+                    "mismatched_brackets.curly.normal",
                     line_start=get_line_location_start(error),
                     line_end=get_line_location_end(error),
                 )
-            elif miss_matched_bracket_type_res == BracketErrorType.CURLY_SQUARE:
+            elif mismatched_bracket_type_res == BracketErrorType.CURLY_SQUARE:
                 add_message(
-                    "miss_matched_brackets.curly.square",
+                    "mismatched_brackets.curly.square",
                     line_start=get_line_location_start(error),
                     line_end=get_line_location_end(error),
                 )

@@ -126,7 +126,7 @@ def check_invalid_function_name(tokens: List[TokenInfo]) -> Optional[str]:
             return should_be_variable_name.string
 
 
-def check_miss_matched_bracket_type(path: str) -> Optional[BracketErrorType]:
+def check_mismatched_bracket_type(path: str) -> Optional[BracketErrorType]:
     """
     Check for miss matched brackets
     :param path: path to file

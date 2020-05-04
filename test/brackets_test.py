@@ -13,17 +13,17 @@ class BracketsTest(unittest.TestCase):
         )
         run_test_scenario(self, path, 1, expected_message)
 
-    def test_miss_matched_bracket_types(self):
-        path = "brackets_samples/miss_matched_bracket_error.py"
+    def test_mismatched_bracket_types(self):
+        path = "brackets_samples/mismatched_bracket_error.py"
         expected_message = get_formatted_message(
-            "miss_matched_brackets.square.normal", line_start=2, line_end=2
+            "mismatched_brackets.square.normal", line_start=2, line_end=2
         )
         run_test_scenario(self, path, 1, expected_message)
 
-    def test_miss_matched_bracket_types_multiline(self):
-        path = "brackets_samples/miss_matched_bracket_multiline_error.py"
+    def test_mismatched_bracket_types_multiline(self):
+        path = "brackets_samples/mismatched_bracket_multiline_error.py"
         expected_message = get_formatted_message(
-            "miss_matched_brackets.square.normal", line_start=2, line_end=4
+            "mismatched_brackets.square.normal", line_start=2, line_end=4
         )
         run_test_scenario(self, path, 1, expected_message)
 

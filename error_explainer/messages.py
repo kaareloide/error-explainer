@@ -51,7 +51,7 @@ _messages = {
         'Print is a function and should be followed by a set of brackets like so: print("foo").',
 
 
-    "miss_matched_brackets.square.normal":
+    "mismatched_brackets.square.normal":
         "It looks like there is a mix of square and regular brackets used "
         "beginning on line {line_start} and ending on line {line_end}.\n"
         "Square brackets are used for list definitions as well as getting elements "
@@ -59,14 +59,14 @@ _messages = {
         "Regular brackets are used for tuple definitions function definitions "
         "and defining the order of operations in an expression.",
 
-    "miss_matched_brackets.curly.normal":
+    "mismatched_brackets.curly.normal":
         "It looks like there is a mix of curly and regular brackets used beginning "
         "on line {line_start} and ending on line {line_end}.\n"
         "Curly brackets are used for map definitions and f-string templates.\n"
         "Regular brackets are used for tuple definitions function definitions"
         " and defining the order of operations in an expression.",
 
-    "miss_matched_brackets.curly.square":
+    "mismatched_brackets.curly.square":
         "It looks like there is a mix of curly and square brackets used beginning"
         " on line {line_start} and ending on line {line_end}.\n"
         "Curly brackets are used for map definitions and f-string templates.\n"
@@ -128,7 +128,7 @@ _messages = {
     "invalid_quotes":
         "There is a missing quote of type: {quote} that should close the string started on line {line_start}.",
 
-    "miss_matched_quotes":
+    "mismatched_quotes":
         "There is a mix of single and double quotes used for a string "
         "starting from line {line_start} to line {line_end}.",
 
@@ -136,7 +136,7 @@ _messages = {
         "There are missing triple quotes of type {quote} that should match the ones on line {line_start}.",
 
     "missing_docstring_quotes":
-        "There seem to be missing quotes at the end of the docstring starting on line {line_start}",
+        "There seems to be missing quotes at the end of the docstring starting on line {line_start}",
 
     "coma_instead_of_period":
         "It looks like you might have used a coma instead of a period while writing a fraction on line {line_start}",
