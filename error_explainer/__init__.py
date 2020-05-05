@@ -8,7 +8,7 @@ from error_explainer.check_runner import (
 from error_explainer.utils import *
 from error_explainer.messages import (
     get_formatted_message,
-    add_message,
+    create_message,
     remove_message,
     overwrite_message,
 )

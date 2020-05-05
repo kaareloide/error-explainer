@@ -47,10 +47,10 @@ Messages used in checks can be:
 
 added
 ```python
-from error_explainer.messages import add_message
+from error_explainer.messages import create_message
 
 # message text can contain arguments in curly brackets these can be later given values using kwargs
-add_message("code_for_the_message", "Message text with {dynamic_arguments}")
+create_message("code_for_the_message", "Message text with {dynamic_arguments}")
 ```
 
 removed

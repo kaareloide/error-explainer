@@ -153,7 +153,7 @@ def get_formatted_message(message_code: str, **namespace: Any) -> str:
     return _messages.get(message_code).format(**namespace)
 
 
-def add_message(message_code: str, message_text: str) -> NoReturn:
+def create_message(message_code: str, message_text: str) -> NoReturn:
     """
     Add a new message to the list of possible error explanations,
     if message for code already exists, KeyError will be raised
