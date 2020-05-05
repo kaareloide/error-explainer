@@ -103,7 +103,7 @@ _messages = {
 
     "invalid_indentation.1":
         'There is an error in the indentation on line number {line} ("{error_line}").\n'
-        'The line has a higher level of indentation but a new matching indentation block was newer started.',
+        'The line has a higher level of indentation but a new matching indentation block was never started.',
 
     "invalid_indentation.2":
         'There is an error in the indentation on line number {line} ("{error_line}").\n'

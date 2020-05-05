@@ -44,6 +44,11 @@ class IndentationTest(unittest.TestCase):
         )
         run_test_scenario(self, path, 1, expected_message)
 
+    def test_false_positive_else(self):
+        path = "indentation_samples/false_positive_else.py"
+        expected_message = None
+        run_test_scenario(self, path, 0, expected_message)
+
 
 if __name__ == "__main__":
     unittest.main()

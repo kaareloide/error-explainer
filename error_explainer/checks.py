@@ -218,10 +218,13 @@ def check_invalid_indentation(path: str) -> Tuple[int, str, str, IndentationErro
         elif is_lower_indentation(line):
             # If indentation level is lower check stack
             if space_count in level_stack:
-                # If stack has that level, remove from start until that level
-                index = level_stack.index(space_count) + 1
-                del level_stack[0 : index - 1]
-                del statement_lines[0 : index - 1]
+                index = level_stack.index(space_count)
+                if utils.is_colon_statement_line(line):
+                    statement_lines[index] = line
+                else:
+                    # If stack has that level, remove from start until that level
+                    del level_stack[0 : index]
+                    del statement_lines[0 : index]
             else:
                 # If that level was not in stack, then line does not match any outer indentation level
                 return (
