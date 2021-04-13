@@ -1,6 +1,6 @@
 import unittest
 
-from test.test_utils import run_sanity_test
+from test_utils import run_sanity_test
 
 
 class SanityTest(unittest.TestCase):

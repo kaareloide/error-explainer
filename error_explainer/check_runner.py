@@ -235,7 +235,6 @@ def invalid_function_def_check(filename: str) -> NoReturn:
                     )
                 elif invalid_function_name_res is not None:
                     if invalid_function_name_res == "(":
-                        print(tokens)
                         add_message(
                             "invalid_function_bracket",
                             line_end=get_line_location_end(error),

@@ -32,8 +32,11 @@ def run_test_scenario(
     :param expected_messages: 1 or more expected messages can be string or list
     """
     messages = run_checks(path)
+    print("---------------------------------------------")
     print(f"expected {expected_messages}")
     print(f"actual {messages}")
+    print("")
+    print("---------------------------------------------")
     # Errors found must equal expected error count
     test_case.assertEqual(expected_messages_count, len(messages))
     # Simple_message must be the one expected

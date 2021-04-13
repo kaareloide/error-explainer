@@ -1,5 +1,5 @@
 import unittest
-from test.test_utils import run_test_scenario
+from test_utils import run_test_scenario
 from error_explainer.messages import get_formatted_message
 
 
